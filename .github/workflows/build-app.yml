@@ -19,11 +19,16 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - run: npm install
-      - run: npm run build
+      - name: Copy web files
+        run: |
+          mkdir -p /tmp/www
+          rsync -a --exclude='.git' --exclude='.github' ./ /tmp/www/
+          mkdir www
+          cp -r /tmp/www/. www/
 
+      - run: npm init -y
       - run: npm install @capacitor/core @capacitor/cli @capacitor/android
-      - run: npx cap init "MyApp" com.example.myapp --web-dir dist
+      - run: npx cap init "MyApp" com.example.myapp --web-dir www
       - run: npx cap add android
       - run: npx cap sync android
 

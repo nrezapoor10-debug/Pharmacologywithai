@@ -1,0 +1,6 @@
+{
+  "name": "داروشناسیAi",
+  "description": "دستیار هوشمند اطلاعات دارویی و مشاور دارویی دیپسیک",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

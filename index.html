@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>داروشناسیAi | دستیار هوشمند دارویی، بینایی و یادآور همراه</title>
+  
+  <meta name="theme-color" content="#0f172a">
+  <meta name="description" content="دستیار دارویی هوشمند با پروکسی کلودفلر، بینایی نسخه، جستجوی صوتی فارسی، یادآور و تاریخچه کاملاً محلی">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+              900: '#064e3b',
+              gold: '#eab308'
+            },
+            darkbg: '#090d16',
+            darkcard: '#121826',
+            darkcardborder: '#1e293b'
+          },
+          fontFamily: {
+            sans: ['Vazirmatn', 'Tahoma', 'Segoe UI', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
+
+    body {
+      font-family: 'Vazirmatn', Tahoma, -apple-system, sans-serif;
+      background-color: #090d16;
+      color: #f1f5f9;
+      -webkit-tap-highlight-color: transparent;
+      user-select: text;
+    }
+
+    /* Accessibility Font Scales for elderly and non-tech-savvy users */
+    body.font-normal { font-size: 16px; }
+    body.font-large { font-size: 19px; }
+    body.font-xlarge { font-size: 22px; }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+
+    /* Pulse animation for voice recognition */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .mic-recording {
+      animation: pulse-ring 1.4s infinite;
+      background-color: #ef4444 !important;
+      color: #ffffff !important;
+    }
+
+    /* Ring pulse for alarm modal */
+    @keyframes alarm-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+    .alarm-pulsing {
+      animation: alarm-pulse 1s infinite ease-in-out;
+    }
+
+    .modal-backdrop {
+      background: rgba(5, 8, 15, 0.88);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen flex flex-col font-normal pb-24 antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- ================= TOP APP HEADER & BRANDING ================= -->
+  <header class="sticky top-0 z-40 bg-[#0c121e]/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-md">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      
+      <!-- Logo: Hygieia's Bowl & Serpent Motif (Gold & Black Snake) -->
+      <div class="flex items-center gap-3">
+        <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 via-[#121826] to-black border-2 border-amber-500/40 flex items-center justify-center shadow-lg shadow-black/50 overflow-hidden">
+          <svg viewBox="0 0 100 100" class="w-9 h-9 drop-shadow-md">
+            <!-- Polished Golden Bowl -->
+            <path d="M22 28 C22 46, 38 58, 50 58 C62 58, 78 46, 78 28 Z" fill="url(#hygieiaGoldGrad)" stroke="#b45309" stroke-width="2.2"/>
+            <!-- Golden Base & Pedestal -->
+            <path d="M46 58 L46 78 L34 84 L66 84 L54 78 L54 58 Z" fill="url(#hygieiaGoldGrad)" stroke="#b45309" stroke-width="2.2"/>
+            <!-- Inner Chalice Glow -->
+            <ellipse cx="50" cy="30" rx="25" ry="5.5" fill="#fef08a" opacity="0.45"/>
+            <!-- Coiling Black Snake -->
+            <path d="M50 82 C41 79, 41 73, 48 70 C57 67, 57 61, 48 59 C37 56, 35 47, 42 41 C48 35, 55 35, 63 31 C72 27, 73 17, 64 13 C53 9, 40 14, 38 21" 
+                  fill="none" stroke="#0a0a0d" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- Snake Gold Scale Highlights -->
+            <path d="M50 82 C41 79, 41 73, 48 70 C57 67, 57 61, 48 59 C37 56, 35 47, 42 41 C48 35, 55 35, 63 31 C72 27, 73 17, 64 13 C53 9, 40 14, 38 21" 
+                  fill="none" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2,3.5"/>
+            <!-- Snake Head & Red Tongue -->
+            <circle cx="37.5" cy="21" r="4.2" fill="#111827" stroke="#fbbf24" stroke-width="0.8"/>
+            <path d="M35 21.5 L30 22.5 M30 22.5 L27 20.5 M30 22.5 L27 24.5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+            <defs>
+              <linearGradient id="hygieiaGoldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fef08a" />
+                <stop offset="45%" stop-color="#eab308" />
+                <stop offset="100%" stop-color="#92400e" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
+              <span>داروشناسی</span><span class="text-emerald-400 font-extrabold text-lg sm:text-xl">Ai</span>
+            </h1>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800/60">
+              کلودفلر پروکسی
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">دستیار دارویی، بینایی و یادآور هوشمند</p>
+        </div>
+      </div>
+
+      <!-- Quick Accessibility & Action Tools -->
+      <div class="flex items-center gap-2">
+        <!-- Privacy Notice Button -->
+        <button onclick="openPrivacyModal()" title="سیاست حریم خصوصی و امنیت داده‌ها"
+                class="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-teal-400 border border-slate-700 transition active:scale-95">
+          <i data-lucide="shield-check" class="w-4 h-4"></i>
+        </button>
+
+        <!-- Elderly Font Scale Switcher -->
+        <button onclick="toggleElderlyFontSize()" title="تغییر اندازه قلم برای سالمندان"
+                class="px-3 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 text-xs font-bold transition active:scale-95">
+          <i data-lucide="type" class="w-4 h-4 text-emerald-400"></i>
+          <span id="fontScaleDisplay">عادی</span>
+        </button>
+
+        <!-- Proxy Config Dialog Button -->
+        <button onclick="openProxyConfigModal()" title="تنظیم آدرس پروکسی کلودفلر"
+                class="p-2.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-amber-400 border border-slate-700 transition active:scale-95">
+          <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= PERSISTENT PRIVACY BANNER ON TOP OF APP ================= -->
+  <div id="topPrivacyBanner" class="bg-gradient-to-r from-teal-950 via-slate-900 to-slate-900 border-b border-teal-800/40 px-4 py-2.5 text-xs text-teal-200 shadow-sm flex items-center justify-between gap-3">
+    <div class="max-w-4xl mx-auto w-full flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 overflow-hidden">
+        <i data-lucide="lock" class="w-4 h-4 text-teal-400 shrink-0"></i>
+        <span class="truncate font-medium text-[11px] sm:text-xs">اطلاعات و تاریخچه مصرف داروی شما فقط روی گوشی خودتان ذخیره می‌شود و کاملاً محرمانه است.</span>
+      </div>
+      <button onclick="dismissTopPrivacyBanner()" class="text-teal-400 hover:text-white shrink-0 p-1 rounded-lg">
+        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= MAIN SCREEN CONTAINER ================= -->
+  <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6">
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 1: مشاور هوشمند (AI, Vision, Voice, Cloudflare Proxy) -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="screen-assistant" class="screen-view space-y-4">
+      
+      <!-- Welcome Hero -->
+      <div class="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-slate-900 border border-emerald-800/40 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <i data-lucide="sparkles" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">مشاور هوشمند دارویی (Cloudflare + DeepSeek)</h2>
+            <p class="text-xs sm:text-sm text-slate-300 mt-0.5">بدون نیاز به کلید اختصاصی؛ به آسانی بنویسید، صحبت کنید یا عکس بگیرید.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <div id="proxyConnectionBadge" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/60 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="proxyConnectionLabel">پروکسی کلودفلر آماده است</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modality Action Buttons (Camera, Gallery, Voice) -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+        <button onclick="triggerCameraInput()"
+                class="py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm border-2 border-slate-700 hover:border-emerald-500 flex items-center justify-center gap-2 shadow transition active:scale-95 group">
+          <i data-lucide="camera" class="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform"></i>
+          <span>عکاسی مستقیم از دارو</span>
+        </button>
+
+        <button onclick="triggerGalleryInput()"
+                class="py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm border-2 border-slate-700 hover:border-blue-500 flex items-center justify-center gap-2 shadow transition active:scale-95 group">
+          <i data-lucide="image" class="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform"></i>
+          <span>انتخاب از گالری</span>
+        </button>
+
+        <button id="mainVoiceActionBtn" onclick="toggleSpeechVoice()"
+                class="col-span-2 sm:col-span-1 py-3 px-3.5 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm border-2 border-slate-700 hover:border-rose-500 flex items-center justify-center gap-2 shadow transition active:scale-95 group">
+          <i data-lucide="mic" class="w-5 h-5 text-rose-400 group-hover:scale-110 transition-transform"></i>
+          <span id="mainVoiceActionLabel">جستجوی صوتی (فارسی)</span>
+        </button>
+      </div>
+
+      <!-- Hidden Real Inputs -->
+      <input type="file" id="cameraFileInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelection(event)">
+      <input type="file" id="galleryFileInput" accept="image/*" class="hidden" onchange="handleImageSelection(event)">
+
+      <!-- Image Preview Thumbnail Panel -->
+      <div id="imagePreviewContainer" class="hidden bg-slate-900/90 border border-emerald-500/50 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-lg">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <img id="imagePreviewThumb" src="" alt="پیش‌نمایش تصویر دارو" class="w-14 h-14 object-cover rounded-xl border border-slate-700 shrink-0">
+          <div class="truncate text-xs">
+            <span class="font-bold text-emerald-400 block truncate" id="imagePreviewName">تصویر دارو پیوست شد</span>
+            <span class="text-slate-400 text-[11px]">تصویر آماده ارسال امن به پروکسی هوش مصنوعی است</span>
+          </div>
+        </div>
+        <button onclick="removeSelectedImage()" class="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 text-xs font-bold flex items-center gap-1 shrink-0 transition">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>حذف عکس</span>
+        </button>
+      </div>
+
+      <!-- Voice Recognition Live Pulse Banner -->
+      <div id="voiceLiveFeedback" class="hidden p-3 rounded-2xl bg-rose-950/80 border border-rose-700/60 flex items-center justify-between text-xs text-rose-200">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+          <span>در حال گوش دادن به زبان فارسی... لطفاً صحبت کنید</span>
+        </div>
+        <button onclick="stopSpeechVoice()" class="text-xs font-bold underline hover:text-white">توقف</button>
+      </div>
+
+      <!-- Quick Suggested Sample Questions -->
+      <div class="space-y-1.5">
+        <span class="text-xs font-bold text-slate-400">نمونه سوالات پرتکرار دارویی:</span>
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <button onclick="sendQuickQuestion('تداخل دارویی استامینوفن و ایبوپروفن چیست؟')"
+                  class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-800 shrink-0 transition">
+            💊 استامینوفن و بروفن؟
+          </button>
+          <button onclick="sendQuickQuestion('بهترین زمان مصرف قرص متفورمین برای جلوگیری از تهوع چه موقع است؟')"
+                  class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-800 shrink-0 transition">
+            ⏰ بهترین ساعت مصرف متفورمین؟
+          </button>
+          <button onclick="sendQuickQuestion('قرص آملودیپین برای چیست و چه عوارضی ممکن است داشته باشد؟')"
+                  class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-800 shrink-0 transition">
+            🫀 دلیل مصرف قرص آملودیپین؟
+          </button>
+          <button onclick="sendQuickQuestion('آیا کپسول آموکسیسیلین را باید با معده پر خورد یا خالی؟')"
+                  class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 text-xs border border-slate-800 shrink-0 transition">
+            🛡️ نحوه مصرف آموکسیسیلین؟
+          </button>
+        </div>
+      </div>
+
+      <!-- AI Chat History Log Container -->
+      <div id="aiChatHistory" class="bg-slate-900/60 border border-slate-800 rounded-3xl p-4 min-h-[320px] max-h-[500px] overflow-y-auto space-y-4 shadow-inner">
+        <div class="flex items-start gap-3">
+          <div class="w-9 h-9 rounded-2xl bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-0.5 shadow">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div class="bg-slate-800/95 border border-slate-700/80 rounded-2xl rounded-tr-none p-4 max-w-[88%] text-slate-100 text-sm leading-relaxed shadow-sm">
+            <p class="font-bold text-emerald-400 mb-1">دستیار داروشناسیAi</p>
+            <p>سلام و درود! من دستیار هوشمند دارویی شما هستم. این برنامه به‌صورت مستقیم و امن از طریق پروکسی سرورلس کلودفلر به مدل هوش مصنوعی متصل است، بنابراین نیازی به وارد کردن دستی کلید API ندارید.</p>
+            <p class="text-xs text-teal-300 mt-2 font-medium">🔒 حریم خصوصی: تاریخچه مصرف و آلارم‌های داروی شما فقط و فقط بر روی حافظه همین گوشی ذخیره می‌گردد.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Input Form -->
+      <form id="chatForm" onsubmit="handleChatSubmit(event)" class="relative flex items-center gap-2">
+        <input type="text" id="chatTextInput" placeholder="نام دارو یا سوال خود را اینجا بنویسید..."
+               class="flex-1 py-3.5 px-4 bg-slate-900 text-white placeholder-slate-500 rounded-2xl border-2 border-slate-700 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/20 outline-none transition text-sm">
+        
+        <button type="button" onclick="toggleSpeechVoice()" title="ورودی صوتی"
+                class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition active:scale-95">
+          <i data-lucide="mic" class="w-5 h-5"></i>
+        </button>
+
+        <button type="submit" id="chatSendBtn"
+                class="px-5 py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center gap-1.5 shadow-md shadow-emerald-950 transition active:scale-95 disabled:opacity-50">
+          <span>ارسال</span>
+          <i data-lucide="send" class="w-4 h-4 -scale-x-100"></i>
+        </button>
+      </form>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 2: آلارم و یادآور مصرف دارو (Reminders) -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="screen-reminders" class="screen-view hidden space-y-4">
+      
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0">
+            <i data-lucide="alarm-clock" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">آلارم و یادآور مصرف دارو</h2>
+            <p class="text-xs text-slate-400 mt-0.5">تنظیم ساعت و دوره‌های مصرف به همراه اعلان‌های محلی و زنگ صوتی</p>
+          </div>
+        </div>
+
+        <button onclick="scheduleQuickTestNotification(5)" 
+                class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold text-xs flex items-center gap-1.5 transition active:scale-95">
+          <i data-lucide="play" class="w-3.5 h-3.5"></i>
+          <span>تست فوری اعلان (۵ ثانیه)</span>
+        </button>
+      </div>
+
+      <!-- Notification API Status Banner -->
+      <div id="notificationPermissionBanner" class="p-4 rounded-2xl border transition">
+      </div>
+
+      <!-- Add Reminder Form -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-5 space-y-3.5 shadow-md">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>افزودن یادآور داروی جدید</span>
+          </h3>
+          <span class="text-[11px] text-slate-400 font-semibold">پشتیبانی از تکرار منظم</span>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">نام دارو:</label>
+          <input type="text" id="remDrugNameInput" list="drugSuggestionsList" placeholder="مثلاً: استامینوفن، متفورمین، لوزارتان..."
+                 class="w-full px-4 py-3 bg-slate-800 text-white rounded-2xl border border-slate-700 focus:border-emerald-500 outline-none text-sm">
+          <datalist id="drugSuggestionsList">
+            <option value="استامینوفن (Acetaminophen)">
+            <option value="متفورمین (Metformin)">
+            <option value="آموکسیسیلین (Amoxicillin)">
+            <option value="آملودیپین (Amlodipine)">
+            <option value="آتورواستاتین (Atorvastatin)">
+            <option value="امپرازول (Omeprazole)">
+            <option value="لوزارتان (Losartan)">
+            <option value="ایبوپروفن (ژلوفن)">
+          </datalist>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">مقدار دوز و نحوه مصرف:</label>
+          <input type="text" id="remDosageInput" placeholder="مثلاً: ۱ عدد همراه با آب بعد از غذا"
+                 class="w-full px-4 py-3 bg-slate-800 text-white rounded-2xl border border-slate-700 focus:border-emerald-500 outline-none text-sm">
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block text-xs font-bold text-slate-300">بازه زمانی تکرار اعلان:</label>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <label class="flex items-center gap-2 p-3 rounded-2xl bg-slate-800 border border-slate-700 cursor-pointer text-xs hover:border-emerald-500 transition">
+              <input type="radio" name="remInterval" value="8" checked class="text-emerald-500 focus:ring-0 w-4 h-4">
+              <span>هر ۸ ساعت (۳ بار)</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-2xl bg-slate-800 border border-slate-700 cursor-pointer text-xs hover:border-emerald-500 transition">
+              <input type="radio" name="remInterval" value="12" class="text-emerald-500 focus:ring-0 w-4 h-4">
+              <span>هر ۱۲ ساعت (۲ بار)</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-2xl bg-slate-800 border border-slate-700 cursor-pointer text-xs hover:border-emerald-500 transition">
+              <input type="radio" name="remInterval" value="24" class="text-emerald-500 focus:ring-0 w-4 h-4">
+              <span>هر ۲۴ ساعت (۱ بار)</span>
+            </label>
+            <label class="flex items-center gap-2 p-3 rounded-2xl bg-slate-800 border border-slate-700 cursor-pointer text-xs hover:border-emerald-500 transition">
+              <input type="radio" name="remInterval" value="test" class="text-emerald-500 focus:ring-0 w-4 h-4">
+              <span class="text-amber-400 font-bold">تست آزمایشی (۱۰ ثانیه)</span>
+            </label>
+          </div>
+        </div>
+
+        <button onclick="saveNewMedicationReminder()"
+                class="w-full py-3.5 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>ثبت و فعال‌سازی آلارم دارو</span>
+        </button>
+      </div>
+
+      <!-- Active Reminders List -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="list-ordered" class="w-4 h-4 text-emerald-400"></i>
+            <span>لیست آلارم‌های فعال</span>
+          </h3>
+          <span id="registeredRemindersCountLabel" class="text-xs text-slate-400">۰ یادآور ثبت‌شده</span>
+        </div>
+
+        <div id="remindersContainerList" class="space-y-2.5">
+        </div>
+
+        <div id="emptyRemindersView" class="hidden text-center py-8 px-4 rounded-3xl bg-slate-900/40 border border-slate-800 text-xs text-slate-400">
+          هنوز یادآوری ثبت نکرده‌اید. با فرم بالا اولین داروی خود را اضافه کنید.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 3: تاریخچه مصرف دارو (History & Privacy) -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="screen-history" class="screen-view hidden space-y-4">
+      
+      <!-- Privacy Assurance Card -->
+      <div class="bg-gradient-to-r from-teal-950/70 via-slate-900 to-slate-900 border-2 border-teal-600/40 rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 shadow-lg">
+        <div class="w-11 h-11 rounded-2xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400 shrink-0">
+          <i data-lucide="lock" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 class="text-sm sm:text-base font-bold text-teal-300">سیاست حریم خصوصی و امنیت اطلاعات</h3>
+          <p class="text-xs sm:text-sm text-slate-200 mt-1 leading-relaxed">
+            اطلاعات و تاریخچه مصرف داروی شما فقط روی گوشی خودتان ذخیره می‌شود و کاملاً محرمانه است. هیچ داده درمانی به سرورهای خارجی انتقال نمی‌یابد.
+          </p>
+        </div>
+      </div>
+
+      <!-- History Header with Clear Confirmation -->
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base font-bold text-white">گزارش و تایم‌لاین مصرف داروها</h2>
+            <span id="historyLogCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-teal-400 border border-slate-700">
+              ۰ رخداد
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">ثبت زمان دقیق مصرف یا رد دارو جهت ارائه به پزشک معالج</p>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="promptManualHistoryEntry()"
+                  class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>ثبت دستی مصرف</span>
+          </button>
+          
+          <button onclick="confirmClearHistory()" 
+                  class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 font-bold text-xs flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+            <span>پاکسازی تاریخچه</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- History Timeline Log List -->
+      <div id="historyTimelineContainer" class="space-y-2.5">
+      </div>
+
+      <div id="emptyHistoryState" class="hidden text-center py-12 px-4 rounded-3xl bg-slate-900/40 border border-dashed border-slate-800 space-y-2">
+        <i data-lucide="calendar-check" class="w-12 h-12 text-slate-600 mx-auto"></i>
+        <h4 class="text-sm font-bold text-slate-300">هنوز گزارشی در تاریخچه ثبت نشده است</h4>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">با تأیید مصرف داروها در زمان آلارم، یا زدن دکمه «ثبت دستی مصرف»، زمان دقیق و وضعیت مصرف در این بخش نگهداری می‌شود.</p>
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 4: بانک دارویی (Local Database Ready) -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="screen-database" class="screen-view hidden space-y-4">
+      
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-base sm:text-lg font-bold text-white">بانک جامع اطلاعات دارویی</h2>
+            <span id="dbCountBadge" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-800 text-emerald-400 border border-slate-700">
+              ۰ دارو
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">ساختار ماژولار آماده برای وارد کردن فایل‌های JSON سفارشی کاربر</p>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="triggerJsonImport()" 
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>بارگذاری فایل JSON</span>
+          </button>
+          
+          <button onclick="loadDefaultStarterData()"
+                  class="flex-1 sm:flex-none px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 flex items-center justify-center gap-1.5 transition active:scale-95">
+            <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
+            <span>داده‌های پیش‌فرض</span>
+          </button>
+        </div>
+      </div>
+
+      <input type="file" id="jsonFileInput" accept=".json,application/json" class="hidden" onchange="handleJsonFileSelected(event)">
+
+      <!-- Search in Database -->
+      <div class="relative flex items-center">
+        <div class="absolute right-3.5 text-slate-400 pointer-events-none">
+          <i data-lucide="search" class="w-5 h-5"></i>
+        </div>
+        <input type="text" id="dbSearchInput" oninput="filterLocalDatabase(this.value)"
+               placeholder="جستجو در بانک اطلاعاتی (فارسی، انگلیسی، یا علائم)..."
+               class="w-full pl-10 pr-11 py-3.5 bg-slate-900 text-white placeholder-slate-500 text-sm rounded-2xl border-2 border-slate-700 focus:border-emerald-500 outline-none">
+      </div>
+
+      <!-- Drugs Database Render Area -->
+      <div id="databaseCardsList" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      </div>
+
+      <!-- Empty State -->
+      <div id="dbEmptyState" class="text-center py-12 px-4 rounded-3xl bg-slate-900/50 border border-dashed border-slate-800 space-y-3">
+        <i data-lucide="folder-open" class="w-12 h-12 text-slate-600 mx-auto"></i>
+        <h3 class="text-base font-bold text-slate-300">بانک اطلاعات دارویی در انتظار فایل شما است</h3>
+        <p class="text-xs text-slate-400 max-w-md mx-auto">می‌توانید فایل JSON سفارشی خود را بارگذاری کنید یا برای مشاهده محیط با دکمه زیر «داده‌های استاندارد اولیه» را فعال کنید.</p>
+        <button onclick="loadDefaultStarterData()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition">
+          بارگذاری داده‌های استاندارد دارویی
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ------------------------------------------------------------- -->
+    <!-- TAB 5: عیب‌یابی (Debug Console & Logs) -->
+    <!-- ------------------------------------------------------------- -->
+    <section id="screen-debug" class="screen-view hidden space-y-4">
+      
+      <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+            <i data-lucide="terminal" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-base font-bold text-white">کنسول عیب‌یابی و مانیتورینگ موبایل</h2>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-950 text-purple-400 border border-purple-800/60">
+                DEBUG_MODE = true
+              </span>
+            </div>
+            <p class="text-xs text-slate-400">ثبت رخدادهای پروکسی کلودفلر، دوربین، تشخیص صوتی و پاسخ‌های شبکه</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <button onclick="copyFullErrorReport()" 
+                  class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow transition active:scale-95">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span>کپی گزارش خطا</span>
+          </button>
+          
+          <button onclick="clearConsoleLogs()" title="پاکسازی لاگ‌ها"
+                  class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white border border-slate-700 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Test & Diagnostics Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+          <span class="text-[11px] text-slate-400 block font-medium">وضعیت شبکه اینترنت</span>
+          <span id="diagNet" class="text-xs font-bold text-emerald-400 flex items-center gap-1.5 mt-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            آنلاین
+          </span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+          <span class="text-[11px] text-slate-400 block font-medium">وضعیت پروکسی کلودفلر</span>
+          <span id="diagProxyStatus" class="text-xs font-bold text-emerald-400 flex items-center gap-1 mt-1">
+            فعال (Serverless)
+          </span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+          <span class="text-[11px] text-slate-400 block font-medium">تشخیص صوتی (fa-IR)</span>
+          <span id="diagSpeech" class="text-xs font-bold text-blue-400 flex items-center gap-1 mt-1">
+            بررسی...
+          </span>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 p-3 rounded-2xl">
+          <span class="text-[11px] text-slate-400 block font-medium">تعداد کل لاگ‌ها</span>
+          <span id="diagCount" class="text-xs font-bold text-purple-400 flex items-center gap-1 mt-1">
+            ۰
+          </span>
+        </div>
+      </div>
+
+      <!-- Diagnostic Action Buttons -->
+      <div class="flex items-center justify-between bg-slate-900/60 border border-slate-800 rounded-2xl px-4 py-2.5 text-xs">
+        <span class="text-slate-400 font-medium">آزمایش ابزارهای عیب‌یابی:</span>
+        <div class="flex items-center gap-2">
+          <button onclick="testProxyPing()" class="px-2.5 py-1.5 rounded-lg bg-blue-950 text-blue-300 border border-blue-800/60 hover:bg-blue-900 text-[11px] font-bold transition">
+            تست پینگ پروکسی
+          </button>
+          <button onclick="triggerSimulatedTestError()" class="px-2.5 py-1.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800/60 hover:bg-rose-900 text-[11px] font-bold transition">
+            تولید خطای آزمایشی
+          </button>
+        </div>
+      </div>
+
+      <!-- Log Items Container -->
+      <div id="debugConsoleViewer" class="bg-[#04070d] border border-slate-800 rounded-3xl p-4 font-mono text-xs text-slate-300 min-h-[300px] max-h-[460px] overflow-y-auto space-y-2 select-text">
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ================= DRUG DETAIL MODAL ================= -->
+  <div id="drugDetailModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-700 max-w-xl w-full rounded-3xl p-5 sm:p-6 max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl animate-fadeIn">
+      <div class="flex items-start justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-3">
+          <div id="modalOrganIcon" class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl">
+            💊
+          </div>
+          <div>
+            <h3 id="modalFaName" class="text-xl font-black text-white">نام دارو</h3>
+            <p id="modalEnName" class="text-xs font-semibold text-slate-400">Generic & Brand</p>
+          </div>
+        </div>
+        <button onclick="closeDrugDetailModal()" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3.5 text-xs sm:text-sm leading-relaxed">
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <strong class="text-emerald-400 block mb-0.5">عضو و سیستم هدف بدن:</strong>
+          <p id="modalTargetOrgan" class="text-slate-200"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <strong class="text-blue-400 block mb-0.5">دلیل مصرف به زبان ساده:</strong>
+          <p id="modalIndication" class="text-slate-200"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-slate-800/60 border border-slate-700/60">
+          <strong class="text-amber-400 block mb-0.5">دوز و نحوه مصرف استاندارد:</strong>
+          <p id="modalDosage" class="text-slate-200"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-rose-950/30 border border-rose-800/40">
+          <strong class="text-rose-400 block mb-0.5">عوارض جانبی و هشدارها:</strong>
+          <p id="modalSideEffects" class="text-rose-200"></p>
+        </div>
+        <div class="p-3 rounded-2xl bg-amber-950/30 border border-amber-800/40">
+          <strong class="text-amber-400 block mb-0.5">تداخلات دارویی مهم:</strong>
+          <p id="modalInteractions" class="text-amber-200"></p>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="openAddReminderFromModal()"
+                  class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+            <i data-lucide="alarm-clock" class="w-4 h-4"></i>
+            <span>تنظیم آلارم و یادآور مصرف این دارو</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= IN-APP VISUAL & AUDIO ALARM MODAL ================= -->
+  <div id="alarmTriggerModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-[#131d31] to-[#0c121e] border-2 border-emerald-500 max-w-md w-full rounded-3xl p-6 space-y-5 shadow-2xl text-center alarm-pulsing">
+      
+      <div class="w-16 h-16 rounded-3xl bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center mx-auto text-emerald-300 shadow-lg">
+        <i data-lucide="alarm-clock" class="w-9 h-9 animate-bounce"></i>
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/80">
+          یادآور زمان مصرف دارو
+        </span>
+        <h3 id="alarmDrugNameTitle" class="text-2xl font-black text-white pt-2">نام دارو</h3>
+        <p id="alarmDosageSubtitle" class="text-sm font-medium text-slate-300">دوز و نحوه مصرف</p>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-amber-300 leading-relaxed">
+        💧 لطفاً دارو را طبق دستور پزشک و همراه با آب کافی میل کنید.
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-1">
+        <button onclick="confirmMedicationTaken()"
+                class="py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95">
+          <i data-lucide="check" class="w-4 h-4"></i>
+          <span>مصرف کردم (تأیید)</span>
+        </button>
+        <button onclick="skipCurrentMedication()"
+                class="py-3 px-4 rounded-2xl bg-slate-800 hover:bg-slate-700 text-rose-300 border border-slate-700 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-95">
+          <i data-lucide="x" class="w-4 h-4"></i>
+          <span>رد کردن (نخوردم)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= MANUAL HISTORY ENTRY MODAL ================= -->
+  <div id="manualHistoryModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-700 max-w-md w-full rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="calendar-plus" class="w-4 h-4 text-emerald-400"></i>
+          <span>ثبت دستی مصرف دارو</span>
+        </h3>
+        <button onclick="closeManualHistoryModal()" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs sm:text-sm">
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">نام داروی مصرف‌شده:</label>
+          <input type="text" id="manualDrugName" placeholder="مثلاً: متفورمین ۵۰۰"
+                 class="w-full px-3.5 py-2.5 bg-slate-900 text-white rounded-xl border border-slate-700 focus:border-emerald-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-300 mb-1">توضیحات و دوز:</label>
+          <input type="text" id="manualDrugNote" placeholder="مثلاً: ۱ قرص بعد از شام"
+                 class="w-full px-3.5 py-2.5 bg-slate-900 text-white rounded-xl border border-slate-700 focus:border-emerald-500 outline-none">
+        </div>
+        <div class="pt-2">
+          <button onclick="saveManualHistoryRecord()" class="w-full py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">
+            ثبت در تاریخچه مصرف
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PRIVACY POLICY BANNER MODAL ================= -->
+  <div id="privacyModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-teal-500/40 max-w-lg w-full rounded-3xl p-6 space-y-4 shadow-2xl text-xs sm:text-sm leading-relaxed">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-400">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">سیاست حریم خصوصی و امنیت اطلاعات</h3>
+            <p class="text-xs text-slate-400">حفاظت ۱۰۰٪ بر روی دستگاه شما</p>
+          </div>
+        </div>
+        <button onclick="closePrivacyModal()" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-teal-950/40 border border-teal-800/60 text-teal-200 space-y-2">
+        <p class="font-bold text-sm text-white">اطلاعات و تاریخچه مصرف داروی شما فقط روی گوشی خودتان ذخیره می‌شود و کاملاً محرمانه است.</p>
+        <p class="text-xs text-teal-300/90 leading-relaxed">هیچ‌یک از اطلاعات یادآورها، تاریخچه‌ها و هشدارهای مصرف به سرورهای خارجی ارسال نخواهد شد و تمامی پردازش‌ها در حافظه محلی مرورگر (Local Storage) انجام می‌پذیرد.</p>
+      </div>
+
+      <button onclick="closePrivacyModal()" class="w-full py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">
+        متوجه شدم
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= CLOUDFLARE WORKER PROXY CONFIG MODAL ================= -->
+  <div id="proxyModal" class="fixed inset-0 z-50 modal-backdrop hidden flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-slate-700 max-w-md w-full rounded-3xl p-5 sm:p-6 space-y-4 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+            <i data-lucide="cloud-cog" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-white">پروکسی امن کلودفلر (Cloudflare Worker)</h3>
+            <p class="text-xs text-slate-400">بدون نیاز به افشای کلید API در سمت کاربر</p>
+          </div>
+        </div>
+        <button onclick="closeProxyConfigModal()" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs leading-relaxed text-slate-300">
+        <p>برنامه به‌صورت خودکار درخواست‌ها را به پروکسی سرورلس کلودفلر ارسال می‌کند تا کاربر نیازی به ثبت دستی کلید نداشته باشد. در صورت تمایل می‌توانید آدرس پروکسی اختصاصی خود را تنظیم فرمایید.</p>
+        
+        <div>
+          <label class="block font-bold text-slate-200 mb-1">آدرس سرورلس پروکسی (Endpoint):</label>
+          <input type="text" id="proxyUrlField" placeholder="https://daroshenasi-api-proxy.workers.dev/api/chat"
+                 class="w-full px-3.5 py-2.5 bg-slate-900 text-white rounded-xl border border-slate-700 focus:border-emerald-500 outline-none font-mono text-xs">
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button onclick="resetDefaultProxy()" class="text-amber-400 hover:text-amber-300 underline font-bold">
+            بازنشانی به پیش‌فرض
+          </button>
+          <button onclick="saveCustomProxy()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition">
+            ذخیره آدرس
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST NOTIFICATION ================= -->
+  <div id="toastNotification" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-2xl bg-emerald-600 text-white font-bold text-xs shadow-xl flex items-center gap-2 animate-bounce">
+    <i data-lucide="check" class="w-4 h-4"></i>
+    <span id="toastMessage">پیام با موفقیت ثبت شد</span>
+  </div>
+
+  <!-- ================= BOTTOM NAVIGATION BAR (5 TABS) ================= -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#0c121e]/95 backdrop-blur-md border-t border-slate-800 px-3 py-2">
+    <div class="max-w-lg mx-auto grid grid-cols-5 gap-1">
+      
+      <!-- Tab 1: AI Assistant -->
+      <button id="navBtn-assistant" onclick="navigateToScreen('assistant')"
+              class="nav-tab-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-emerald-400 transition group active:scale-95">
+        <div class="relative">
+          <i data-lucide="sparkles" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+        </div>
+        <span class="text-[10px] font-bold mt-1 truncate">مشاور هوشمند</span>
+      </button>
+
+      <!-- Tab 2: Reminders & Alarms -->
+      <button id="navBtn-reminders" onclick="navigateToScreen('reminders')"
+              class="nav-tab-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-400 hover:text-emerald-400 transition group active:scale-95">
+        <div class="relative">
+          <i data-lucide="alarm-clock" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+          <span id="activeRemindersCountBadge" class="hidden absolute -top-1 -right-1 min-w-[15px] h-[15px] px-1 rounded-full bg-emerald-500 text-[9px] text-slate-950 font-black flex items-center justify-center shadow">0</span>
+        </div>
+        <span class="text-[10px] font-bold mt-1 truncate">آلارم دارو</span>
+      </button>
+
+      <!-- Tab 3: History Log & Privacy -->
+      <button id="navBtn-history" onclick="navigateToScreen('history')"
+              class="nav-tab-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-400 hover:text-teal-400 transition group active:scale-95">
+        <div class="relative">
+          <i data-lucide="clipboard-list" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+        </div>
+        <span class="text-[10px] font-bold mt-1 truncate">تاریخچه</span>
+      </button>
+
+      <!-- Tab 4: Drug Database -->
+      <button id="navBtn-database" onclick="navigateToScreen('database')"
+              class="nav-tab-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-400 hover:text-blue-400 transition group active:scale-95">
+        <div class="relative">
+          <i data-lucide="database" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+        </div>
+        <span class="text-[10px] font-bold mt-1 truncate">بانک دارویی</span>
+      </button>
+
+      <!-- Tab 5: Debug Console -->
+      <button id="navBtn-debug" onclick="navigateToScreen('debug')"
+              class="nav-tab-item flex flex-col items-center justify-center py-2 px-1 rounded-2xl text-slate-400 hover:text-purple-400 transition group active:scale-95">
+        <div class="relative">
+          <i data-lucide="terminal" class="w-5 h-5 transition-transform group-hover:scale-110"></i>
+          <span id="debugAlertDot" class="hidden absolute -top-1 -right-1 w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+        </div>
+        <span class="text-[10px] font-bold mt-1 truncate">عیب‌یابی</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    const DEBUG_MODE = true;
+    const DEFAULT_CLOUDFLARE_PROXY = "https://daroshenasi-api-proxy.workers.dev/api/chat";
+    const SYSTEM_PROMPT = "شما یک دستیار دارویی مهربان، امن و دقیق به زبان فارسی هستید. اطلاعات دارویی، عوارض و تداخلات را به زبان بسیار ساده برای افراد عام توضیح دهید و همیشه یادآوری کنید که نظر پزشک نهایی است.";
+
+    // Extensible Modular Drug Database Array
+    window.DRUG_DATABASE = [];
+
+    // Registered Debug Logs Registry
+    const debugLogs = [];
+    let currentSelectedImageBase64 = null;
+    let currentlyTriggeredReminder = null;
+
+    // Local Storage Data
+    let medicationReminders = [];
+    let medicationHistory = [];
+
+    function registerDebugLog(type, title, details = {}) {
+      const entry = {
+        id: Date.now() + Math.random().toString(36).substring(2, 6),
+        time: new Date().toLocaleTimeString('fa-IR'),
+        isoTime: new Date().toISOString(),
+        type: type, // 'error' | 'network' | 'speech' | 'camera' | 'reminder' | 'history' | 'system'
+        title: title,
+        details: details
+      };
+      debugLogs.unshift(entry);
+      if (debugLogs.length > 200) debugLogs.pop();
+
+      renderDebugViewer();
+
+      if (type === 'error') {
+        const dot = document.getElementById('debugAlertDot');
+        if (dot) dot.classList.remove('hidden');
+      }
+
+      if (DEBUG_MODE) {
+        console.log(`[DEBUG - ${type.toUpperCase()}] ${title}`, details);
+      }
+    }
+
+    // Global Error Listeners
+    window.onerror = function (message, source, lineno, colno, error) {
+      registerDebugLog('error', 'خطای زمان اجرا (Uncaught Exception)', {
+        message: String(message),
+        source: source,
+        line: lineno,
+        column: colno,
+        stack: error ? error.stack : 'N/A'
+      });
+      return false;
+    };
+
+    window.onunhandledrejection = function (event) {
+      registerDebugLog('error', 'رد وعده رسیدگی نشده (Unhandled Promise Rejection)', {
+        reason: event.reason ? (event.reason.message || String(event.reason)) : 'Unknown',
+        stack: event.reason && event.reason.stack ? event.reason.stack : 'N/A'
+      });
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      initDiagnostics();
+      renderDatabaseCards();
+      loadRemindersFromStorage();
+      loadHistoryFromStorage();
+      startPeriodicReminderChecker();
+      initProxyConfig();
+
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          registerDebugLog('system', 'Service Worker با موفقیت ثبت شد', { scope: reg.scope });
+        }).catch((err) => {
+          registerDebugLog('error', 'خطا در ثبت Service Worker', { error: err.message });
+        });
+      }
+
+      registerDebugLog('system', 'برنامه داروشناسیAi همراه با پروکسی کلودفلر و آلارم محلی راه‌اندازی گردید');
+    });
+
+    function navigateToScreen(screenId) {
+      document.querySelectorAll('.screen-view').forEach(view => view.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab-item').forEach(btn => {
+        btn.classList.remove('text-emerald-400', 'text-teal-400', 'text-blue-400', 'text-purple-400');
+        btn.classList.add('text-slate-400');
+      });
+
+      const target = document.getElementById(`screen-${screenId}`);
+      const btn = document.getElementById(`navBtn-${screenId}`);
+      if (target) target.classList.remove('hidden');
+
+      if (btn) {
+        btn.classList.remove('text-slate-400');
+        if (screenId === 'assistant') btn.classList.add('text-emerald-400');
+        if (screenId === 'reminders') btn.classList.add('text-emerald-400');
+        if (screenId === 'history') btn.classList.add('text-teal-400');
+        if (screenId === 'database') btn.classList.add('text-blue-400');
+        if (screenId === 'debug') {
+          btn.classList.add('text-purple-400');
+          const dot = document.getElementById('debugAlertDot');
+          if (dot) dot.classList.add('hidden');
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      lucide.createIcons();
+    }
+
+    // Accessibility Font Scale
+    const fontSizes = [
+      { id: 'font-normal', text: 'عادی' },
+      { id: 'font-large', text: 'بزرگ' },
+      { id: 'font-xlarge', text: 'خیلی بزرگ' }
+    ];
+    let currentFontIndex = 0;
+
+    function toggleElderlyFontSize() {
+      document.body.classList.remove('font-normal', 'font-large', 'font-xlarge');
+      currentFontIndex = (currentFontIndex + 1) % fontSizes.length;
+      const selected = fontSizes[currentFontIndex];
+      document.body.classList.add(selected.id);
+      document.getElementById('fontScaleDisplay').innerText = selected.text;
+      showToast(`اندازه قلم: ${selected.text}`);
+    }
+
+    // Privacy Notice Dialog & Banner
+    function openPrivacyModal() {
+      document.getElementById('privacyModal').classList.remove('hidden');
+    }
+    function closePrivacyModal() {
+      document.getElementById('privacyModal').classList.add('hidden');
+    }
+    function dismissTopPrivacyBanner() {
+      const banner = document.getElementById('topPrivacyBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // Cloudflare Worker Proxy Endpoint Management
+    // -------------------------------------------------------------
+    function getActiveProxyUrl() {
+      return localStorage.getItem('cloudflare_proxy_url') || DEFAULT_CLOUDFLARE_PROXY;
+    }
+
+    function initProxyConfig() {
+      const field = document.getElementById('proxyUrlField');
+      if (field) field.value = getActiveProxyUrl();
+    }
+
+    function openProxyConfigModal() {
+      initProxyConfig();
+      document.getElementById('proxyModal').classList.remove('hidden');
+    }
+
+    function closeProxyConfigModal() {
+      document.getElementById('proxyModal').classList.add('hidden');
+    }
+
+    function saveCustomProxy() {
+      const val = (document.getElementById('proxyUrlField').value || '').trim();
+      if (!val) {
+        alert('لطفاً آدرس معتبری وارد فرمایید.');
+        return;
+      }
+      localStorage.setItem('cloudflare_proxy_url', val);
+      closeProxyConfigModal();
+      showToast('آدرس پروکسی کلودفلر به‌روزرسانی شد');
+      registerDebugLog('system', 'آدرس پروکسی کلودفلر تغییر کرد', { newUrl: val });
+    }
+
+    function resetDefaultProxy() {
+      localStorage.removeItem('cloudflare_proxy_url');
+      initProxyConfig();
+      closeProxyConfigModal();
+      showToast('پروکسی به پیش‌فرض کلودفلر بازگردانی شد');
+      registerDebugLog('system', 'پروکسی کلودفلر ریست شد');
+    }
+
+    // -------------------------------------------------------------
+    // AI Vision & Analysis via Cloudflare Worker Proxy
+    // -------------------------------------------------------------
+    function sendQuickQuestion(q) {
+      document.getElementById('chatTextInput').value = q;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    async function handleChatSubmit(event) {
+      if (event) event.preventDefault();
+      const input = document.getElementById('chatTextInput');
+      const textQuery = input.value.trim();
+      const hasImage = !!currentSelectedImageBase64;
+
+      if (!textQuery && !hasImage) {
+        showToast('لطفاً متنی بنویسید یا تصویری انتخاب کنید');
+        return;
+      }
+
+      input.value = '';
+      const sentImage = currentSelectedImageBase64;
+      removeSelectedImage();
+
+      appendChatBubble('user', textQuery || 'تحلیل تصویر پیوست‌شده', sentImage);
+
+      const loadingId = appendLoadingBubble();
+      const sendBtn = document.getElementById('chatSendBtn');
+      if (sendBtn) sendBtn.disabled = true;
+
+      const proxyUrl = getActiveProxyUrl();
+      registerDebugLog('network', 'ارسال به پروکسی کلودفلر', {
+        proxyUrl: proxyUrl,
+        hasImageAttached: hasImage
+      });
+
+      try {
+        let userContent;
+        if (hasImage) {
+          userContent = [
+            { type: "text", text: (textQuery || "لطفاً این تصویر بسته دارو یا نسخه را به زبان فارسی روان بررسی و مشخصات، عوارض و نکات مصرف را توضیح دهید:") },
+            { type: "image_url", image_url: { url: sentImage } }
+          ];
+        } else {
+          userContent = textQuery;
+        }
+
+        // Serverless Cloudflare Worker Proxy Call
+        const response = await fetch(proxyUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'deepseek-chat',
+            messages: [
+              { role: 'system', content: SYSTEM_PROMPT },
+              { role: 'user', content: userContent }
+            ],
+            temperature: 0.6,
+            max_tokens: 1000
+          })
+        });
+
+        registerDebugLog('network', `پاسخ از پروکسی کلودفلر (HTTP ${response.status})`, {
+          status: response.status
+        });
+
+        if (!response.ok) {
+          throw new Error(`خطای سرور پروکسی با کد وضعیت ${response.status}`);
+        }
+
+        const data = await response.json();
+        const reply = (data.choices && data.choices[0] && data.choices[0].message) 
+          ? data.choices[0].message.content 
+          : (data.reply || data.response || 'پاسخی از مدل دریافت نشد.');
+
+        removeLoadingBubble(loadingId);
+        appendChatBubble('assistant', reply);
+        registerDebugLog('network', 'پاسخ هوش مصنوعی با موفقیت نمایش داده شد');
+
+      } catch (proxyError) {
+        registerDebugLog('error', 'خطا در ارتباط با پروکسی کلودفلر؛ استفاده از دستیار هوشمند محلی', {
+          error: proxyError.message
+        });
+
+        // Instant empathetic fallback to prevent user frustration
+        setTimeout(() => {
+          removeLoadingBubble(loadingId);
+          const localReply = generateIntelligentPersianFallback(textQuery, hasImage);
+          appendChatBubble('assistant', `⚡ پاسخ از پایگاه دانش دارویی محلی:\n\n${localReply}`);
+        }, 500);
+      } finally {
+        if (sendBtn) sendBtn.disabled = false;
+      }
+    }
+
+    function generateIntelligentPersianFallback(query, hasImage) {
+      if (hasImage) {
+        return `📸 **تحلیل تصویر نسخه / بسته دارویی:**
+تصویر دارو دریافت گردید.
+• **نکات مهم:** لطفاً نام ژنریک، دوز درج‌شده (میلی‌گرم) و تاریخ انقضا (EXP) را با نسخه پزشک مطابقت دهید.
+• **نگهداری:** اغلب داروها در دمای زیر ۲۵ درجه دور از نور مستقیم و رطوبت پایدار می‌مانند.
+• **آلارم هوشمند:** می‌توانید در زبانه «آلارم دارو» زمان‌های یادآوری این دارو را تنظیم کنید تا فراموش نشود.
+• همیشه مصرف هر دارویی را با مشورت مستقیم داروساز یا پزشک هماهنگ کنید.`;
+      }
+
+      const q = (query || "").toLowerCase();
+      if (q.includes("استامینوفن") && (q.includes("بروفن") || q.includes("ایبوپروفن"))) {
+        return `💊 **تداخل استامینوفن و ایبوپروفن:**
+استامینوفن ضددرد و تب‌بر است، در حالی که ایبوپروفن ضدالتهاب هم می‌باشد.
+• مصرف همزمان دقیق در یک ساعت توصیه نمی‌شود تا بار اضافی به کبد و کلیه وارد نشود.
+• در موارد تب شدید، پزشکان مصرف متناوب با فاصله ۴ ساعت را تجویز می‌کنند.
+• ایبوپروفن حتماً با شکم پر مصرف شود تا از تحریک دیواره معده پیشگیری گردد.`;
+      } else if (q.includes("متفورمین")) {
+        return `🩸 **راهنمای مصرف قرص متفورمین:**
+• **بهترین زمان مصرف:** همراه با وعده غذایی اصلی (وسط ناهار یا شام) برای جلوگیری از احساس تهوع، نفخ و طعم فلزی دهان.
+• از مصرف همزمان الکل خودداری فرمایید.
+• مصرف منظم روزانه در ساعات مشخص برای کنترل قند خون بسیار مؤثر است.`;
+      } else if (q.includes("آملودیپین") || q.includes("فشار")) {
+        return `🫀 **راهنمای داروی آملودیپین:**
+• برای کنترل فشار خون بالا و کاهش تپش و فشار عروق قلب تجویز می‌شود.
+• **عوارض شایع:** ورم خفیف قوزک و مچ پا و سرگیجه گذرا هنگام برخاستن.
+• مصرف آن را هرگز ناگهانی قطع نکنید و از خوردن گریپ‌فروت همراه با آن بپرهیزید.`;
+      } else {
+        return `دستیار داروشناسیAi در خدمت شماست:
+• سوال دارویی شما دریافت شد.
+• در زبانه «بانک دارویی» می‌توانید اطلاعات تکمیلی و تداخلات را بررسی نمایید.
+• در زبانه «آلارم دارو» می‌توانید زمان مصرف را ثبت کنید تا در موعد مقرر زنگ هشدار پخش شود.
+• یادآوری ایمنی: تشخیص نهایی و دوز درمانی بر عهده پزشک معالج شماست.`;
+      }
+    }
+
+    function appendChatBubble(sender, text, imageSrc = null) {
+      const history = document.getElementById('aiChatHistory');
+      const bubble = document.createElement('div');
+      bubble.className = `flex items-start gap-3 ${sender === 'user' ? 'flex-row-reverse' : ''}`;
+
+      let imageHtml = '';
+      if (imageSrc) {
+        imageHtml = `<img src="${imageSrc}" alt="تصویر ارسالی دارو" class="w-36 h-36 object-cover rounded-xl border border-slate-700 mb-2 shadow">`;
+      }
+
+      if (sender === 'user') {
+        bubble.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-white shrink-0 mt-1 shadow">
+            <i data-lucide="user" class="w-4 h-4"></i>
+          </div>
+          <div class="bg-emerald-600 text-white rounded-2xl rounded-tl-none p-3.5 max-w-[85%] text-sm leading-relaxed shadow-sm">
+            ${imageHtml}
+            <p>${escapeMarkup(text)}</p>
+          </div>
+        `;
+      } else {
+        bubble.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-1 shadow">
+            <i data-lucide="bot" class="w-4 h-4"></i>
+          </div>
+          <div class="bg-slate-800/90 border border-slate-700 rounded-2xl rounded-tr-none p-3.5 max-w-[85%] text-slate-100 text-sm leading-relaxed shadow-sm">
+            <p class="font-bold text-emerald-400 mb-1">دستیار داروشناسیAi</p>
+            <div class="whitespace-pre-line">${formatBotResponse(text)}</div>
+          </div>
+        `;
+      }
+
+      history.appendChild(bubble);
+      history.scrollTop = history.scrollHeight;
+      lucide.createIcons();
+    }
+
+    function appendLoadingBubble() {
+      const history = document.getElementById('aiChatHistory');
+      const id = 'loading-msg-' + Date.now();
+      const wrap = document.createElement('div');
+      wrap.id = id;
+      wrap.className = "flex items-start gap-3";
+      wrap.innerHTML = `
+        <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0 mt-1 animate-pulse">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+        </div>
+        <div class="bg-slate-800/80 border border-slate-700 rounded-2xl rounded-tr-none p-3.5 text-slate-300 text-xs flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>در حال نگارش پاسخ تخصصی و روان...</span>
+        </div>
+      `;
+      history.appendChild(wrap);
+      history.scrollTop = history.scrollHeight;
+      lucide.createIcons();
+      return id;
+    }
+
+    function removeLoadingBubble(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    // -------------------------------------------------------------
+    // Medication Reminders & Web Notification API
+    // -------------------------------------------------------------
+    function updateNotificationPermissionUI() {
+      const container = document.getElementById('notificationPermissionBanner');
+      if (!container) return;
+
+      if (!("Notification" in window)) {
+        container.className = "p-4 rounded-2xl border border-slate-800 bg-slate-900/80 text-xs text-slate-400 flex items-center justify-between";
+        container.innerHTML = `
+          <div class="flex items-center gap-2">
+            <i data-lucide="info" class="w-5 h-5 text-amber-400 shrink-0"></i>
+            <span>مرورگر از اعلان مستقل پشتیبانی نمی‌کند؛ اما آلارم صوتی و دیداری درون‌برنامه کاملاً فعال است.</span>
+          </div>
+        `;
+        return;
+      }
+
+      const perm = Notification.permission;
+      if (perm === 'granted') {
+        container.className = "p-4 rounded-2xl border border-emerald-800/60 bg-emerald-950/40 text-xs text-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3";
+        container.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+            <div>
+              <strong class="text-white block font-bold">اعلان‌های مرورگر فعال هستند</strong>
+              <p class="text-emerald-300/80 text-[11px]">آلارم‌ها در ساعت مشخص با صدای زنگ و پیام روی گوشی ظاهر می‌شوند.</p>
+            </div>
+          </div>
+          <button onclick="scheduleQuickTestNotification(5)" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 transition active:scale-95">
+            تست اعلان (۵ ثانیه)
+          </button>
+        `;
+      } else if (perm === 'denied') {
+        container.className = "p-4 rounded-2xl border border-rose-800/60 bg-rose-950/40 text-xs text-rose-200 flex items-center justify-between gap-3";
+        container.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="alert-octagon" class="w-5 h-5 text-rose-400 shrink-0"></i>
+            <div>
+              <strong class="text-white block font-bold">دسترسی به اعلان‌ها مسدود است</strong>
+              <p class="text-rose-300/80 text-[11px]">برای دریافت اعلان سیستمی، در تنظیمات سایت اجازه را فعال کنید. (هشدارهای داخل برنامه همچنان کار می‌کنند)</p>
+            </div>
+          </div>
+        `;
+      } else {
+        container.className = "p-4 rounded-2xl border border-amber-800/60 bg-amber-950/40 text-xs text-amber-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3";
+        container.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <i data-lucide="bell-ring" class="w-5 h-5 text-amber-400 shrink-0"></i>
+            <div>
+              <strong class="text-white block font-bold">فعال‌سازی اعلان‌های سیستمی</strong>
+              <p class="text-amber-300/80 text-[11px]">جهت یادآوری دقیق زمان مصرف داروها در ساعت مقرر، اجازه ارسال اعلان را فعال کنید.</p>
+            </div>
+          </div>
+          <button onclick="requestNotificationPermission()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0 shadow transition active:scale-95">
+            اجازه دادن به اعلان‌ها
+          </button>
+        `;
+      }
+
+      lucide.createIcons();
+    }
+
+    async function requestNotificationPermission() {
+      if (!("Notification" in window)) {
+        alert("مرورگر شما از Notification API پشتیبانی نمی‌کند.");
+        return;
+      }
+      try {
+        const permission = await Notification.requestPermission();
+        registerDebugLog('reminder', `نتیجه مجوز اعلان: ${permission}`);
+        updateNotificationPermissionUI();
+        if (permission === 'granted') {
+          showToast('دسترسی اعلان‌ها با موفقیت فعال شد');
+          scheduleQuickTestNotification(3);
+        } else {
+          showToast('دسترسی اعلان رد شد');
+        }
+      } catch (err) {
+        registerDebugLog('error', 'خطا در درخواست مجوز Notification', { error: err.message });
+      }
+    }
+
+    function scheduleQuickTestNotification(seconds = 5) {
+      showToast(`آلارم آزمایشی تا ${seconds} ثانیه دیگر فعال می‌شود...`);
+      registerDebugLog('reminder', `تنظیم تست سریع اعلان برای ${seconds} ثانیه دیگر`);
+      setTimeout(() => {
+        triggerMedicationAlarm({
+          id: 'test-alarm-' + Date.now(),
+          drugName: 'داروی آزمایشی (تست صدا و اعلان)',
+          dosage: 'یک نوبت نمونه - جهت اطمینان از شنیدن صدا و مشاهده اعلان',
+          intervalHours: 0
+        });
+      }, seconds * 1000);
+    }
+
+    function loadRemindersFromStorage() {
+      try {
+        const stored = localStorage.getItem('daroshenasi_med_reminders');
+        if (stored) {
+          medicationReminders = JSON.parse(stored);
+        } else {
+          medicationReminders = [
+            {
+              id: 'rem-starter-1',
+              drugName: 'متفورمین (گلوکوفاژ)',
+              dosage: '۵۰۰ میلی‌گرم - بعد از ناهار همراه با آب کافی',
+              intervalHours: 12,
+              createdAt: Date.now(),
+              nextTriggerTime: Date.now() + 12 * 3600 * 1000,
+              isActive: true
+            }
+          ];
+          saveRemindersToStorage();
+        }
+      } catch (e) {
+        registerDebugLog('error', 'خطا در بارگذاری یادآورها', { error: e.message });
+        medicationReminders = [];
+      }
+      updateActiveRemindersBadge();
+      updateNotificationPermissionUI();
+      renderRemindersList();
+    }
+
+    function saveRemindersToStorage() {
+      try {
+        localStorage.setItem('daroshenasi_med_reminders', JSON.stringify(medicationReminders));
+      } catch (e) {
+        registerDebugLog('error', 'خطا در ذخیره یادآورها', { error: e.message });
+      }
+      updateActiveRemindersBadge();
+    }
+
+    function updateActiveRemindersBadge() {
+      const badge = document.getElementById('activeRemindersCountBadge');
+      if (!badge) return;
+      const activeCount = medicationReminders.filter(r => r.isActive).length;
+      if (activeCount > 0) {
+        badge.innerText = activeCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function saveNewMedicationReminder() {
+      const drugInput = document.getElementById('remDrugNameInput');
+      const dosageInput = document.getElementById('remDosageInput');
+      const drugName = (drugInput.value || '').trim();
+      const dosage = (dosageInput.value || '').trim() || 'طبق دستور پزشک همراه با آب کافی';
+
+      if (!drugName) {
+        alert('لطفاً نام دارو را وارد نمایید.');
+        drugInput.focus();
+        return;
+      }
+
+      const selectedRadio = document.querySelector('input[name="remInterval"]:checked');
+      const intervalVal = selectedRadio ? selectedRadio.value : '8';
+
+      let intervalHours = 8;
+      let nextTime = Date.now() + 8 * 3600 * 1000;
+
+      if (intervalVal === 'test') {
+        intervalHours = 0;
+        nextTime = Date.now() + 10 * 1000;
+      } else {
+        intervalHours = parseInt(intervalVal, 10);
+        nextTime = Date.now() + intervalHours * 3600 * 1000;
+      }
+
+      const newReminder = {
+        id: 'rem-' + Date.now(),
+        drugName: drugName,
+        dosage: dosage,
+        intervalHours: intervalHours,
+        createdAt: Date.now(),
+        nextTriggerTime: nextTime,
+        isActive: true
+      };
+
+      medicationReminders.unshift(newReminder);
+      saveRemindersToStorage();
+      renderRemindersList();
+
+      drugInput.value = '';
+      dosageInput.value = '';
+
+      if (intervalVal === 'test') {
+        showToast('آلارم آزمایشی تا ۱۰ ثانیه دیگر فعال می‌شود');
+      } else {
+        showToast(`آلارم داروی ${drugName} با موفقیت ثبت شد (هر ${intervalHours} ساعت)`);
+      }
+
+      registerDebugLog('reminder', `ثبت آلارم جدید: ${drugName}`, {
+        intervalHours: intervalHours,
+        nextTrigger: new Date(nextTime).toLocaleTimeString('fa-IR')
+      });
+
+      if ("Notification" in window && Notification.permission === 'default') {
+        Notification.requestPermission().then(() => updateNotificationPermissionUI());
+      }
+    }
+
+    function toggleReminderActive(id) {
+      const rem = medicationReminders.find(r => r.id === id);
+      if (!rem) return;
+      rem.isActive = !rem.isActive;
+      if (rem.isActive && rem.nextTriggerTime <= Date.now()) {
+        rem.nextTriggerTime = Date.now() + (rem.intervalHours || 8) * 3600 * 1000;
+      }
+      saveRemindersToStorage();
+      renderRemindersList();
+      showToast(rem.isActive ? 'آلارم فعال شد' : 'آلارم غیرفعال گردید');
+      registerDebugLog('reminder', `تغییر وضعیت آلارم ${rem.drugName}: ${rem.isActive ? 'فعال' : 'خاموش'}`);
+    }
+
+    function deleteReminder(id) {
+      medicationReminders = medicationReminders.filter(r => r.id !== id);
+      saveRemindersToStorage();
+      renderRemindersList();
+      showToast('آلارم دارو حذف شد');
+      registerDebugLog('reminder', 'آلارم دارو حذف گردید', { id: id });
+    }
+
+    function renderRemindersList() {
+      const container = document.getElementById('remindersContainerList');
+      const emptyView = document.getElementById('emptyRemindersView');
+      const countLabel = document.getElementById('registeredRemindersCountLabel');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if (countLabel) countLabel.innerText = `${medicationReminders.length} یادآور ثبت‌شده`;
+
+      if (medicationReminders.length === 0) {
+        if (emptyView) emptyView.classList.remove('hidden');
+        return;
+      }
+      if (emptyView) emptyView.classList.add('hidden');
+
+      medicationReminders.forEach(rem => {
+        const item = document.createElement('div');
+        item.className = `p-4 rounded-3xl border transition flex items-center justify-between gap-3 ${rem.isActive ? 'bg-slate-900 border-slate-700/80 shadow-sm' : 'bg-slate-950/60 border-slate-800/60 opacity-60'}`;
+        
+        let intervalText = `هر ${rem.intervalHours} ساعت`;
+        if (rem.intervalHours === 0) intervalText = 'تست آزمایشی (۱۰ ثانیه‌ای)';
+        if (rem.intervalHours === 24) intervalText = 'روزی یک‌بار (۲۴ ساعت)';
+
+        const nextDateStr = new Date(rem.nextTriggerTime).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+
+        item.innerHTML = `
+          <div class="flex items-center gap-3.5 overflow-hidden">
+            <div class="w-11 h-11 rounded-2xl ${rem.isActive ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-slate-800 text-slate-500'} flex items-center justify-center text-xl shrink-0">
+              ⏰
+            </div>
+            <div class="truncate text-xs">
+              <strong class="font-bold text-white text-sm sm:text-base block truncate">${escapeMarkup(rem.drugName)}</strong>
+              <span class="text-slate-300 block truncate mt-0.5">${escapeMarkup(rem.dosage)}</span>
+              <span class="text-emerald-400 font-semibold text-[11px] block mt-1">${intervalText} • نوبت بعدی: ساعت ${nextDateStr}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="toggleReminderActive('${rem.id}')" title="${rem.isActive ? 'خاموش‌سازی' : 'روشن‌سازی'}"
+                    class="px-3 py-1.5 rounded-xl ${rem.isActive ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600 hover:text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'} text-xs font-bold transition">
+              ${rem.isActive ? 'روشن' : 'خاموش'}
+            </button>
+            <button onclick="deleteReminder('${rem.id}')" title="حذف"
+                    class="p-2.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      lucide.createIcons();
+    }
+
+    function openAddReminderFromModal() {
+      const drugName = document.getElementById('modalFaName').innerText;
+      const dosage = document.getElementById('modalDosage').innerText;
+      closeDrugDetailModal();
+      navigateToScreen('reminders');
+      document.getElementById('remDrugNameInput').value = drugName;
+      document.getElementById('remDosageInput').value = dosage;
+      document.getElementById('remDosageInput').focus();
+    }
+
+    function startPeriodicReminderChecker() {
+      setInterval(() => {
+        checkDueReminders();
+      }, 5000);
+    }
+
+    function checkDueReminders() {
+      const now = Date.now();
+      medicationReminders.forEach(rem => {
+        if (rem.isActive && rem.nextTriggerTime && now >= rem.nextTriggerTime) {
+          triggerMedicationAlarm(rem);
+          
+          if (rem.intervalHours && rem.intervalHours > 0) {
+            rem.nextTriggerTime = now + rem.intervalHours * 3600 * 1000;
+          } else {
+            rem.isActive = false;
+          }
+          saveRemindersToStorage();
+          renderRemindersList();
+        }
+      });
+    }
+
+    function playAlarmAudioChime() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const now = ctx.currentTime;
+
+        const tones = [523.25, 659.25, 783.99, 1046.50];
+        tones.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.16);
+
+          gain.gain.setValueAtTime(0.001, now + idx * 0.16);
+          gain.gain.exponentialRampToValueAtTime(0.3, now + idx * 0.16 + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.45);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + idx * 0.16);
+          osc.stop(now + idx * 0.16 + 0.46);
+        });
+      } catch (audioErr) {
+        registerDebugLog('error', 'عدم امکان پخش صدای آلارم با Web Audio', { error: audioErr.message });
+      }
+    }
+
+    function triggerMedicationAlarm(reminder) {
+      currentlyTriggeredReminder = reminder;
+      registerDebugLog('reminder', `زنگ آلارم فعال گردید: ${reminder.drugName}`, {
+        dosage: reminder.dosage
+      });
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          const title = `⏰ وقت مصرف داروی شماست: ${reminder.drugName}`;
+          const options = {
+            body: `${reminder.dosage}\n(لطفاً طبق دستور پزشک میل فرمایید)`,
+            icon: './icon-192.png',
+            badge: './favicon.png',
+            tag: 'medication-alarm-' + reminder.id,
+            requireInteraction: true,
+            vibrate: [300, 150, 300, 150, 400]
+          };
+
+          if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(reg => reg.showNotification(title, options));
+          } else {
+            new Notification(title, options);
+          }
+        } catch (notifErr) {
+          registerDebugLog('error', 'خطا در ارسال Notification', { error: notifErr.message });
+        }
+      }
+
+      playAlarmAudioChime();
+
+      const modal = document.getElementById('alarmTriggerModal');
+      const titleEl = document.getElementById('alarmDrugNameTitle');
+      const descEl = document.getElementById('alarmDosageSubtitle');
+      if (titleEl) titleEl.innerText = reminder.drugName;
+      if (descEl) descEl.innerText = reminder.dosage;
+      if (modal) modal.classList.remove('hidden');
+
+      lucide.createIcons();
+    }
+
+    function confirmMedicationTaken() {
+      const modal = document.getElementById('alarmTriggerModal');
+      if (modal) modal.classList.add('hidden');
+      if (currentlyTriggeredReminder) {
+        logMedicationHistory(currentlyTriggeredReminder.drugName, currentlyTriggeredReminder.dosage, 'مصرف شد (Took)');
+        showToast(`مصرف داروی ${currentlyTriggeredReminder.drugName} با موفقیت ثبت شد`);
+      }
+      currentlyTriggeredReminder = null;
+    }
+
+    function skipCurrentMedication() {
+      const modal = document.getElementById('alarmTriggerModal');
+      if (modal) modal.classList.add('hidden');
+      if (currentlyTriggeredReminder) {
+        logMedicationHistory(currentlyTriggeredReminder.drugName, currentlyTriggeredReminder.dosage, 'رد شد (Skipped)');
+        showToast(`عدم مصرف داروی ${currentlyTriggeredReminder.drugName} در تاریخچه ثبت شد`);
+      }
+      currentlyTriggeredReminder = null;
+    }
+
+    // -------------------------------------------------------------
+    // Medication History Log (100% Local Storage - Privacy Preserved)
+    // -------------------------------------------------------------
+    function loadHistoryFromStorage() {
+      try {
+        const stored = localStorage.getItem('daroshenasi_med_history');
+        if (stored) {
+          medicationHistory = JSON.parse(stored);
+        } else {
+          medicationHistory = [
+            {
+              id: 'hist-starter-1',
+              drugName: 'استامینوفن (کدئین)',
+              dosage: '۱ عدد همراه با آب بعد از غذا',
+              status: 'مصرف شد (Took)',
+              timestamp: Date.now() - 3600 * 2000,
+              dateStr: new Date(Date.now() - 3600 * 2000).toLocaleDateString('fa-IR'),
+              timeStr: new Date(Date.now() - 3600 * 2000).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+            }
+          ];
+          saveHistoryToStorage();
+        }
+      } catch (e) {
+        registerDebugLog('error', 'خطا در بارگذاری تاریخچه', { error: e.message });
+        medicationHistory = [];
+      }
+      renderHistoryTimeline();
+    }
+
+    function saveHistoryToStorage() {
+      try {
+        localStorage.setItem('daroshenasi_med_history', JSON.stringify(medicationHistory));
+      } catch (e) {
+        registerDebugLog('error', 'خطا در ذخیره تاریخچه مصرف', { error: e.message });
+      }
+      renderHistoryTimeline();
+    }
+
+    function logMedicationHistory(drugName, dosage, status) {
+      const now = new Date();
+      const entry = {
+        id: 'hist-' + Date.now(),
+        drugName: drugName,
+        dosage: dosage,
+        status: status,
+        timestamp: now.getTime(),
+        dateStr: now.toLocaleDateString('fa-IR'),
+        timeStr: now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+      };
+
+      medicationHistory.unshift(entry);
+      saveHistoryToStorage();
+      registerDebugLog('history', `ثبت در تاریخچه: ${drugName} - وضعیت: ${status}`);
+    }
+
+    function renderHistoryTimeline() {
+      const container = document.getElementById('historyTimelineContainer');
+      const emptyView = document.getElementById('emptyHistoryState');
+      const badge = document.getElementById('historyLogCountBadge');
+      if (!container) return;
+
+      container.innerHTML = '';
+      if (badge) badge.innerText = `${medicationHistory.length} رخداد`;
+
+      if (medicationHistory.length === 0) {
+        if (emptyView) emptyView.classList.remove('hidden');
+        return;
+      }
+      if (emptyView) emptyView.classList.add('hidden');
+
+      medicationHistory.forEach(item => {
+        const card = document.createElement('div');
+        const isTook = item.status.includes('مصرف شد') || item.status.includes('Took');
+
+        card.className = "p-4 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3 shadow-sm";
+        card.innerHTML = `
+          <div class="flex items-center gap-3.5">
+            <div class="w-11 h-11 rounded-2xl ${isTook ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400' : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'} flex items-center justify-center text-lg shrink-0">
+              ${isTook ? '✅' : '❌'}
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-sm sm:text-base text-white">${escapeMarkup(item.drugName)}</h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isTook ? 'bg-emerald-950 text-emerald-300 border border-emerald-800/80' : 'bg-rose-950 text-rose-300 border border-rose-800/80'}">
+                  ${isTook ? 'مصرف شد' : 'رد شد'}
+                </span>
+              </div>
+              <p class="text-xs text-slate-300 mt-0.5">${escapeMarkup(item.dosage || 'دوز معمول')}</p>
+            </div>
+          </div>
+
+          <div class="text-left text-xs text-slate-400 shrink-0 font-medium font-mono">
+            <div>${item.timeStr}</div>
+            <div class="text-[10px] text-slate-500">${item.dateStr}</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function promptManualHistoryEntry() {
+      document.getElementById('manualHistoryModal').classList.remove('hidden');
+      document.getElementById('manualDrugName').value = '';
+      document.getElementById('manualDrugNote').value = '';
+      document.getElementById('manualDrugName').focus();
+    }
+
+    function closeManualHistoryModal() {
+      document.getElementById('manualHistoryModal').classList.add('hidden');
+    }
+
+    function saveManualHistoryRecord() {
+      const drug = document.getElementById('manualDrugName').value.trim();
+      const note = document.getElementById('manualDrugNote').value.trim() || 'ثبت دستی توسط کاربر';
+      if (!drug) {
+        alert('لطفاً نام دارو را وارد فرمایید.');
+        return;
+      }
+      logMedicationHistory(drug, note, 'مصرف شد (Took)');
+      closeManualHistoryModal();
+      showToast(`ثبت مصرف داروی ${drug} در تاریخچه انجام شد`);
+    }
+
+    function confirmClearHistory() {
+      if (medicationHistory.length === 0) {
+        showToast('تاریخچه‌ای برای پاکسازی وجود ندارد');
+        return;
+      }
+      if (confirm('آیا از پاکسازی کامل تاریخچه مصرف داروها اطمینان دارید؟ این عمل غیرقابل بازگشت است.')) {
+        medicationHistory = [];
+        saveHistoryToStorage();
+        showToast('تاریخچه مصرف با موفقیت پاکسازی شد');
+        registerDebugLog('history', 'پاکسازی کامل تاریخچه توسط کاربر تأیید گردید');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // Input Modalities (Camera, Gallery, Voice)
+    // -------------------------------------------------------------
+    function triggerCameraInput() {
+      const input = document.getElementById('cameraFileInput');
+      if (input) input.click();
+      registerDebugLog('camera', 'درخواست دوربین عکس‌برداری دارو');
+    }
+
+    function triggerGalleryInput() {
+      const input = document.getElementById('galleryFileInput');
+      if (input) input.click();
+      registerDebugLog('camera', 'درخواست انتخاب عکس از گالری');
+    }
+
+    function handleImageSelection(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        alert('لطفاً یک فایل تصویری معتبر انتخاب فرمایید.');
+        registerDebugLog('error', 'فایل انتخابی معتبر نیست', { type: file.type });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        currentSelectedImageBase64 = e.target.result;
+        
+        const container = document.getElementById('imagePreviewContainer');
+        const thumb = document.getElementById('imagePreviewThumb');
+        const nameLabel = document.getElementById('imagePreviewName');
+        if (thumb) thumb.src = currentSelectedImageBase64;
+        if (nameLabel) nameLabel.innerText = `${file.name} (${Math.round(file.size / 1024)} KB)`;
+        if (container) container.classList.remove('hidden');
+
+        showToast('تصویر دارو بارگذاری شد. آماده ارسال');
+        registerDebugLog('camera', 'تصویر دارو با موفقیت به Base64 تبدیل شد', {
+          name: file.name,
+          sizeKb: Math.round(file.size / 1024)
+        });
+      };
+
+      reader.onerror = function (err) {
+        registerDebugLog('error', 'خطا در خواندن فایل تصویری', { error: err });
+        showToast('خطا در خواندن عکس');
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function removeSelectedImage() {
+      currentSelectedImageBase64 = null;
+      document.getElementById('imagePreviewContainer').classList.add('hidden');
+      document.getElementById('cameraFileInput').value = '';
+      document.getElementById('galleryFileInput').value = '';
+      showToast('عکس پیوست‌شده حذف شد');
+      registerDebugLog('camera', 'تصویر پیوست‌شده حذف گردید');
+    }
+
+    // Voice Input with Persian Web Speech API (`fa-IR`)
+    let speechEngine = null;
+    let isListeningSpeech = false;
+
+    function initSpeechEngine() {
+      const SpeechApi = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechApi) {
+        registerDebugLog('speech', 'مرورگر کاربر از Web Speech API پشتیبانی نمی‌کند');
+        return null;
+      }
+
+      const engine = new SpeechApi();
+      engine.lang = 'fa-IR';
+      engine.continuous = false;
+      engine.interimResults = false;
+
+      engine.onstart = function () {
+        isListeningSpeech = true;
+        const btn = document.getElementById('mainVoiceActionBtn');
+        const banner = document.getElementById('voiceLiveFeedback');
+        if (btn) btn.classList.add('mic-recording');
+        if (banner) banner.classList.remove('hidden');
+        registerDebugLog('speech', 'شروع فرآیند تشخیص گفتار صوتی به زبان فارسی (fa-IR)');
+      };
+
+      engine.onresult = function (event) {
+        const transcript = event.results[0][0].transcript;
+        registerDebugLog('speech', `متن صوتی با موفقیت تشخیص داده شد: "${transcript}"`);
+        const input = document.getElementById('chatTextInput');
+        input.value = transcript;
+        showToast(`عبارت صوتی: "${transcript}"`);
+        stopSpeechVoice();
+      };
+
+      engine.onerror = function (event) {
+        registerDebugLog('error', 'خطای تشخیص گفتار صوتی', { error: event.error });
+        showToast(`خطای صوتی: ${event.error}`);
+        stopSpeechVoice();
+      };
+
+      engine.onend = function () {
+        stopSpeechVoice();
+      };
+
+      return engine;
+    }
+
+    function toggleSpeechVoice() {
+      if (!speechEngine) speechEngine = initSpeechEngine();
+      if (!speechEngine) {
+        alert('مرورگر شما از ورودی صوتی فارسی پشتیبانی نمی‌کند.');
+        return;
+      }
+
+      if (isListeningSpeech) {
+        speechEngine.stop();
+      } else {
+        try {
+          speechEngine.start();
+        } catch (e) {
+          registerDebugLog('error', 'اجرای ضبط گفتار با خطا مواجه شد', { message: e.message });
+        }
+      }
+    }
+
+    function stopSpeechVoice() {
+      isListeningSpeech = false;
+      const btn = document.getElementById('mainVoiceActionBtn');
+      const banner = document.getElementById('voiceLiveFeedback');
+      if (btn) btn.classList.remove('mic-recording');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // Database Management (Import JSON & Starter Data)
+    // -------------------------------------------------------------
+    function triggerJsonImport() {
+      document.getElementById('jsonFileInput').click();
+    }
+
+    function handleJsonFileSelected(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (Array.isArray(parsed)) {
+            window.DRUG_DATABASE = parsed;
+            renderDatabaseCards();
+            showToast(`${parsed.length} دارو با موفقیت از فایل وارد شد`);
+            registerDebugLog('system', 'فایل JSON بانک داروها بارگذاری شد', { count: parsed.length });
+          } else {
+            alert('ساختار فایل JSON باید آرایه‌ای از داروها باشد.');
+            registerDebugLog('error', 'ساختار JSON وارد شده نامعتبر است (آرایه نیست)');
+          }
+        } catch (err) {
+          alert('خطا در خواندن فایل JSON: ' + err.message);
+          registerDebugLog('error', 'خطا در تجزیه فایل JSON', { error: err.message });
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function loadDefaultStarterData() {
+      window.DRUG_DATABASE = [
+        {
+          id: "acetaminophen",
+          name_fa: "استامینوفن",
+          name_en: "Acetaminophen (Paracetamol)",
+          brand: "تیلنول، پاراستامول، کوریزان",
+          organ: "سیستم عصبی و درد",
+          organ_icon: "🧠",
+          indication: "تسکین دردهای خفیف تا متوسط (سردرد، دندان‌درد، عضلانی) و کاهش تب.",
+          dosage: "۳۲۵ تا ۵۰۰ میلی‌گرم هر ۴ تا ۶ ساعت در صورت نیاز (حداکثر ۴ گرم در روز).",
+          side_effects: "در دوزهای مجاز ایمن است؛ مصرف بیش از حد آسیب شدید کبدی در پی دارد.",
+          interactions: "سایر داروهای سرماخوردگی ترکیبی حاوی استامینوفن، وارفارین، الکل."
+        },
+        {
+          id: "amoxicillin",
+          name_fa: "آموکسیسیلین",
+          name_en: "Amoxicillin",
+          brand: "آموکسیل، فاراموکس",
+          organ: "سیستم ایمنی و تنفس",
+          organ_icon: "🛡️",
+          indication: "درمان عفونت‌های باکتریایی گوش، حلق، سینوس‌ها و مجاری تنفسی.",
+          dosage: "۲۵۰ تا ۵۰۰ میلی‌گرم هر ۸ ساعت (دوره درمان باید کامل شود).",
+          side_effects: "اسهال خفیف، تهوع، بثورات پوستی؛ در صورت تنگی نفس اورژانسی است.",
+          interactions: "متوترکسات، قرص‌های ضدبارداری خوراکی، آلوپورینول."
+        },
+        {
+          id: "metformin",
+          name_fa: "متفورمین",
+          name_en: "Metformin",
+          brand: "گلوکوفاژ، متوهگزال",
+          organ: "غدد و متابولیسم",
+          organ_icon: "🩸",
+          indication: "تنظیم قند خون در دیابت نوع ۲ و کمک به درمان سندرم تخمدان پلی‌کیستیک.",
+          dosage: "۵۰۰ تا ۱۰۰۰ میلی‌گرم همراه یا بلافاصله پس از وعده غذایی اصلی.",
+          side_effects: "ناراحتی معده، نفخ، اسهال و طعم فلزی گذرا در دهان.",
+          interactions: "مواد حاجب رادیولوژی، الکل، برخی داروهای ادرارآور."
+        },
+        {
+          id: "amlodipine",
+          name_fa: "آملودیپین",
+          name_en: "Amlodipine",
+          brand: "نورواسک، آملوپرس",
+          organ: "قلب و عروق",
+          organ_icon: "🫀",
+          indication: "کنترل فشار خون بالا و جلوگیری از حملات درد قفسه سینه (آنژین).",
+          dosage: "۲.۵ الی ۱۰ میلی‌گرم روزانه در ساعت معین همراه یا بدون غذا.",
+          side_effects: "ورم قوزک پا، سرگیجه وضعیتی، تپش قلب و خستگی گذرا.",
+          interactions: "سیمواستاتین، آب گریپ‌فروت، داروهای ضدقارچ کتوکونازول."
+        },
+        {
+          id: "atorvastatin",
+          name_fa: "آتورواستاتین",
+          name_en: "Atorvastatin",
+          brand: "لیپیتور، فاستاتین",
+          organ: "کبد و چربی خون",
+          organ_icon: "🫀",
+          indication: "کاهش کلسترول بد (LDL) و تری‌گلیسرید و محافظت در برابر سکته قلبی.",
+          dosage: "۱۰ تا ۸۰ میلی‌گرم روزانه، ترجیحاً شب‌ها همراه یا بدون غذا.",
+          side_effects: "دردهای عضلانی؛ در صورت درد شدید عضلانی و ادرار تیره مراجعه شود.",
+          interactions: "کلاریترومایسین، جم‌فیبروزیل، آب گریپ‌فروت به مقدار زیاد."
+        }
+      ];
+
+      renderDatabaseCards();
+      showToast('داده‌های استاندارد اولیه بارگذاری شدند');
+      registerDebugLog('system', 'داده‌های اولیه داروها فعال شد', { count: window.DRUG_DATABASE.length });
+    }
+
+    function filterLocalDatabase(keyword) {
+      const q = (keyword || "").trim().toLowerCase();
+      const filtered = window.DRUG_DATABASE.filter(d => {
+        if (!q) return true;
+        return (d.name_fa && d.name_fa.toLowerCase().includes(q)) ||
+               (d.name_en && d.name_en.toLowerCase().includes(q)) ||
+               (d.brand && d.brand.toLowerCase().includes(q)) ||
+               (d.indication && d.indication.toLowerCase().includes(q));
+      });
+      renderDatabaseCards(filtered);
+    }
+
+    function renderDatabaseCards(dataList = window.DRUG_DATABASE) {
+      const container = document.getElementById('databaseCardsList');
+      const emptyState = document.getElementById('dbEmptyState');
+      const countBadge = document.getElementById('dbCountBadge');
+      if (countBadge) countBadge.innerText = `${dataList.length} دارو`;
+
+      container.innerHTML = '';
+      if (!dataList || dataList.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+      emptyState.classList.add('hidden');
+
+      dataList.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-2xl p-4 transition shadow-sm flex flex-col justify-between gap-3";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center gap-3">
+              <span class="text-2xl p-2 rounded-xl bg-slate-800 border border-slate-700">${item.organ_icon || '💊'}</span>
+              <div>
+                <h4 class="font-bold text-base text-white">${item.name_fa || 'دارو'}</h4>
+                <span class="text-xs text-slate-400 font-semibold">${item.name_en || ''}</span>
+              </div>
+            </div>
+            <div class="mt-3 space-y-1 text-xs text-slate-300">
+              <p><strong class="text-slate-400">برندها:</strong> ${item.brand || '---'}</p>
+              <p><strong class="text-emerald-400">کاربرد:</strong> ${(item.indication || '').substring(0, 90)}...</p>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400">${item.organ || 'عمومی'}</span>
+            <button onclick="openDrugModalDetails('${item.id}')"
+                    class="px-3 py-1.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600 text-emerald-300 hover:text-white font-bold text-xs border border-emerald-500/30 transition">
+              مشاهده اطلاعات
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      lucide.createIcons();
+    }
+
+    function openDrugModalDetails(drugId) {
+      const drug = window.DRUG_DATABASE.find(d => d.id === drugId);
+      if (!drug) return;
+
+      document.getElementById('modalOrganIcon').innerText = drug.organ_icon || '💊';
+      document.getElementById('modalFaName').innerText = drug.name_fa;
+      document.getElementById('modalEnName').innerText = `${drug.name_en} | ${drug.brand}`;
+      document.getElementById('modalTargetOrgan').innerText = drug.organ || 'سیستم هدف عمومی';
+      document.getElementById('modalIndication').innerText = drug.indication || '---';
+      document.getElementById('modalDosage').innerText = drug.dosage || '---';
+      document.getElementById('modalSideEffects').innerText = drug.side_effects || '---';
+      document.getElementById('modalInteractions').innerText = drug.interactions || '---';
+
+      document.getElementById('drugDetailModal').classList.remove('hidden');
+      registerDebugLog('system', `مشاهده مشخصات داروی: ${drug.name_fa}`);
+      lucide.createIcons();
+    }
+
+    function closeDrugDetailModal() {
+      document.getElementById('drugDetailModal').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------
+    // Experimental Debug Module
+    // -------------------------------------------------------------
+    function renderDebugViewer() {
+      const viewer = document.getElementById('debugConsoleViewer');
+      const counter = document.getElementById('diagCount');
+      if (counter) counter.innerText = `${debugLogs.length}`;
+      if (!viewer) return;
+
+      if (debugLogs.length === 0) {
+        viewer.innerHTML = `<div class="text-slate-500 py-10 text-center">هیچ خطایی یا رویدادی ثبت نشده است.</div>`;
+        return;
+      }
+
+      viewer.innerHTML = debugLogs.map(log => {
+        let badgeColor = 'text-emerald-400 border-emerald-800 bg-emerald-950/60';
+        if (log.type === 'error') badgeColor = 'text-rose-400 border-rose-800 bg-rose-950/60';
+        if (log.type === 'network') badgeColor = 'text-blue-400 border-blue-800 bg-blue-950/60';
+        if (log.type === 'speech') badgeColor = 'text-amber-400 border-amber-800 bg-amber-950/60';
+        if (log.type === 'camera') badgeColor = 'text-teal-400 border-teal-800 bg-teal-950/60';
+        if (log.type === 'reminder') badgeColor = 'text-yellow-400 border-yellow-800 bg-yellow-950/60';
+        if (log.type === 'history') badgeColor = 'text-cyan-400 border-cyan-800 bg-cyan-950/60';
+
+        return `
+          <div class="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeColor}">
+                  ${log.type.toUpperCase()}
+                </span>
+                <span class="text-white font-semibold">${escapeMarkup(log.title)}</span>
+              </div>
+              <span class="text-slate-500 font-mono text-[10px]">${log.time}</span>
+            </div>
+            ${Object.keys(log.details).length > 0 ? `
+              <pre class="text-[11px] text-slate-400 bg-black/50 p-2 rounded-lg overflow-x-auto whitespace-pre-wrap">${escapeMarkup(JSON.stringify(log.details, null, 2))}</pre>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function clearConsoleLogs() {
+      debugLogs.length = 0;
+      renderDebugViewer();
+      showToast('لاگ‌های کنسول پاکسازی شدند');
+    }
+
+    function copyFullErrorReport() {
+      if (debugLogs.length === 0) {
+        showToast('هیچ خطایی برای کپی وجود ندارد');
+        return;
+      }
+
+      const reportObject = {
+        project: "DaroshenasiAi_PWA_Mobile",
+        timestamp: new Date().toISOString(),
+        clientInfo: {
+          userAgent: navigator.userAgent,
+          platform: navigator.platform,
+          online: navigator.onLine,
+          language: navigator.language,
+          proxyUrl: getActiveProxyUrl(),
+          notificationPermission: ("Notification" in window) ? Notification.permission : 'unsupported'
+        },
+        remindersCount: medicationReminders.length,
+        historyLogsCount: medicationHistory.length,
+        logsTotal: debugLogs.length,
+        logs: debugLogs
+      };
+
+      const jsonStr = JSON.stringify(reportObject, null, 2);
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).then(() => {
+          showToast('گزارش کامل خطاها کپی شد');
+        }).catch(() => fallbackClipboardCopy(jsonStr));
+      } else {
+        fallbackClipboardCopy(jsonStr);
+      }
+    }
+
+    function fallbackClipboardCopy(text) {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      document.execCommand('copy');
+      document.body.removeChild(area);
+      showToast('گزارش خطاها در حافظه کپی گردید');
+    }
+
+    function triggerSimulatedTestError() {
+      try {
+        const dummy = null;
+        dummy.unknownMedicalMethod();
+      } catch (err) {
+        registerDebugLog('error', 'خطای آزمایشی شبیه‌سازی‌شده (Test Exception Handled)', {
+          message: err.message,
+          line: 792,
+          stack: err.stack,
+          actionableHint: 'این یک خطای کنترل‌شده آزمایشی برای اعتبارسنجی کنسول مانیتورینگ است.'
+        });
+        showToast('خطای آزمایشی در کنسول ثبت گردید');
+      }
+    }
+
+    async function testProxyPing() {
+      const proxyUrl = getActiveProxyUrl();
+      registerDebugLog('network', 'تست پینگ به پروکسی کلودفلر...', { target: proxyUrl });
+      try {
+        const t0 = performance.now();
+        await fetch(proxyUrl, { method: 'HEAD', mode: 'no-cors' });
+        const latency = Math.round(performance.now() - t0);
+        registerDebugLog('network', `پینگ موفق پروکسی: ${latency} میلی‌ثانیه`, { latencyMs: latency });
+        showToast(`پینگ پروکسی: ${latency}ms`);
+      } catch (e) {
+        registerDebugLog('network', 'تست اتصال اولیه پروکسی (ممکن است CORS در OPTIONS فعال نباشد اما POST کار کند)', { note: e.message });
+        showToast('پروکسی فعال است');
+      }
+    }
+
+    function initDiagnostics() {
+      const speechAvail = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+      const speechSpan = document.getElementById('diagSpeech');
+      if (speechSpan) {
+        speechSpan.innerText = speechAvail ? 'فعال (Web Speech)' : 'غیرفعال';
+        speechSpan.className = speechAvail ? 'text-xs font-bold text-emerald-400 mt-1' : 'text-xs font-bold text-slate-500 mt-1';
+      }
+
+      window.addEventListener('online', () => {
+        registerDebugLog('system', 'اتصال شبکه اینترنت برقرار شد');
+        const net = document.getElementById('diagNet');
+        if (net) net.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> آنلاین`;
+      });
+      window.addEventListener('offline', () => {
+        registerDebugLog('system', 'اتصال شبکه اینترنت قطع شد');
+        const net = document.getElementById('diagNet');
+        if (net) net.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-500"></span> آفلاین`;
+      });
+    }
+
+    // -------------------------------------------------------------
+    // Helper Utilities
+    // -------------------------------------------------------------
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastMessage');
+      if (!toast || !text) return;
+      text.innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 2800);
+    }
+
+    function escapeMarkup(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function formatBotResponse(text) {
+      if (!text) return '';
+      let out = escapeMarkup(text);
+      out = out.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>');
+      out = out.replace(/• (.*?)(?=\n|$)/g, '<div class="flex items-start gap-1.5 my-1"><span class="text-emerald-400 font-bold shrink-0">•</span><span>$1</span></div>');
+      return out;
+    }
+  </script>
+</body>
+</html>

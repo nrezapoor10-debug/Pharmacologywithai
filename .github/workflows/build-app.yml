@@ -10,35 +10,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
 
-      - name: Copy web files
+      - name: Read Gradle version from wrapper
+        id: gv
         run: |
-          mkdir -p /tmp/www
-          rsync -a --exclude='.git' --exclude='.github' ./ /tmp/www/
-          mkdir www
-          cp -r /tmp/www/. www/
+          F=gradle/wrapper/gradle-wrapper.properties
+          cat "$F"
+          VER=$(grep distributionUrl "$F" | sed -E 's/.*gradle-([0-9][^/]*)-(bin|all)\.zip.*/\1/')
+          echo "Gradle version: $VER"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
 
-      - run: npm init -y
-      - run: npm install @capacitor/core @capacitor/cli @capacitor/android
-      - run: npx cap init "MyApp" com.example.myapp --web-dir www
-      - run: npx cap add android
-      - run: npx cap sync android
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ steps.gv.outputs.version }}
 
-      - name: Build APK
+      - name: Accept Android licenses
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+
+      - name: Create debug keystore
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          keytool -genkeypair -keystore debug.keystore \
+            -storepass android -keypass android \
+            -alias androiddebugkey -keyalg RSA -keysize 2048 \
+            -validity 10000 -dname "CN=Android Debug,O=Android,C=US"
+
+      - name: Build Debug APK
+        run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/*.apk

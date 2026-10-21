@@ -7,9 +7,12 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.webkit.ConsoleMessage
 import android.webkit.PermissionRequest
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
 import android.webkit.WebView
@@ -39,16 +42,30 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.ui.theme.MyApplicationTheme
+import java.io.File
 
 class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
+    cleanInvalidVariationsSeeds()
     enableEdgeToEdge()
     setContent {
       MyApplicationTheme {
         DaroshenasiApp()
       }
     }
+  }
+
+  private fun cleanInvalidVariationsSeeds() {
+    try {
+      val dataDir = applicationInfo.dataDir?.let { File(it) } ?: return
+      dataDir.listFiles()?.filter { it.isDirectory && it.name.startsWith("app_webview") }?.forEach { dir ->
+        val seed = File(dir, "variations_seed")
+        if (seed.exists()) seed.delete()
+        val seedNew = File(dir, "variations_seed_new")
+        if (seedNew.exists()) seedNew.delete()
+      }
+    } catch (_: Exception) {}
   }
 }
 
@@ -135,6 +152,10 @@ fun DaroshenasiApp() {
             displayZoomControls = false
             cacheMode = WebSettings.LOAD_DEFAULT
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+            mediaPlaybackRequiresUserGesture = false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              safeBrowsingEnabled = false
+            }
           }
 
           setBackgroundColor(android.graphics.Color.parseColor("#090D16"))
@@ -152,6 +173,11 @@ fun DaroshenasiApp() {
                 }
                 it.grant(it.resources)
               }
+            }
+
+            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+              Log.d("DaroshenasiApp", "${consoleMessage?.message()} [line ${consoleMessage?.lineNumber()}]")
+              return true
             }
 
             override fun onShowFileChooser(
@@ -181,6 +207,11 @@ fun DaroshenasiApp() {
           webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
               return false
+            }
+
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+              super.onReceivedError(view, request, error)
+              Log.w("DaroshenasiApp", "Resource warning: ${error?.description} for ${request?.url}")
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {

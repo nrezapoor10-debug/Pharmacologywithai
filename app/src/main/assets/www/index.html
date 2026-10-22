@@ -19,12 +19,19 @@
         }
 
         body {
-            font-family: Tahoma, sans-serif;
+            font-family: Tahoma, 'Segoe UI', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
             padding: 15px;
             padding-bottom: 95px;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #drugResult, #aiResponseContainer, #debug-box, .selectable-text {
+            user-select: text;
+            -webkit-user-select: text;
         }
 
         .header {
@@ -91,55 +98,71 @@
             padding: 10px 16px;
             cursor: pointer;
             font-weight: bold;
-            transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s, transform 0.1s;
         }
 
-        button:hover { opacity: 0.9; }
+        button:active {
+            transform: scale(0.98);
+        }
 
         .delete-btn {
             background: var(--danger);
-            padding: 5px 10px;
-            font-size: 0.75rem;
-            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
         }
 
         .chat-input-bar {
             display: flex;
             gap: 8px;
             align-items: center;
-            background: #0f172a;
-            padding: 8px;
-            border-radius: 12px;
-            margin-top: 15px;
-            border: 1px solid #334155;
         }
 
-        .chat-input-bar input { margin: 0; border: none; background: transparent; }
-        .chat-input-bar button { background: #334155; padding: 8px 12px; border-radius: 8px; }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.08); opacity: 0.7; }
-            100% { transform: scale(1); opacity: 1; }
+        .chat-input-bar input {
+            flex-grow: 1;
+            margin: 0;
         }
-        .chat-input-bar button.active-mic {
+
+        .active-mic {
+            animation: pulse-mic 1.2s infinite;
             background: var(--danger) !important;
-            animation: pulse 1.2s infinite;
         }
 
-        /* نشانگر وضعیت ارتباط دیپ‌سیک */
+        @keyframes pulse-mic {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.7); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+        }
+
         .status-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
-            border-radius: 20px;
             font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
         }
-        .status-badge.online { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .status-badge.offline { background: rgba(244, 63, 94, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-        .status-badge.checking { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
 
-        /* برچسب‌های دارویی */
+        .status-badge.online {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-badge.offline {
+            background: rgba(244, 63, 94, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .status-badge.checking {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
         .badge {
             display: inline-block;
             padding: 3px 8px;
@@ -303,7 +326,7 @@
             border-radius: 8px;
             font-family: monospace;
             font-size: 0.85rem;
-            max-height: 120px;
+            max-height: 140px;
             overflow-y: auto;
         }
 
@@ -333,7 +356,7 @@
 
     <div class="header">
         <h2>داروشناسی هوشمند</h2>
-        <p>بانک جامع ۶۸۴ داروی مرجع بالینی + دستیار DeepSeek AI</p>
+        <p>بانک جامع ۶۸۴ داروی مرجع بالینی + دستیار هوش مصنوعی DeepSeek</p>
     </div>
 
     <!-- بخش دارو -->
@@ -394,26 +417,29 @@
             <div id="aiStatusBadge" class="status-badge checking">در حال ارزیابی اتصال...</div>
         </div>
 
-        <details style="margin-top: 12px; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
-            <summary>⚙️ تنظیمات دیپ‌سیک (کلید API و مدل)</summary>
-            <div style="margin-top: 8px;">
+        <details style="margin-top: 12px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155;">
+            <summary style="cursor: pointer; font-weight: bold; color: var(--accent-color); font-size: 0.9rem;">ℹ️ راهنمای اتصال به دیپسیک (کلید API شخصی)</summary>
+            <div style="margin-top: 10px;">
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 10px 0; line-height: 1.6;">
+                    برای بهره‌مندی از پردازش هوش مصنوعی DeepSeek، کلید API خود را از وب‌سایت <a href="https://platform.deepseek.com" target="_blank" style="color: var(--accent-color); text-decoration: underline;">platform.deepseek.com</a> دریافت کرده و در فیلد زیر وارد فرمایید. در صورت عدم ثبت کلید، سیستم به طور خودکار از دانشنامه بالینی ۶۸۴ داروی مرجع (FDA / BNF) استفاده می‌کند.
+                </p>
                 <label style="font-size: 0.8rem; color: var(--text-muted);">کلید API دیپ‌سیک (DeepSeek API Key):</label>
-                <input type="password" id="deepseekApiKey" placeholder="sk-..." style="font-family: monospace;">
+                <input type="password" id="userApiKey" placeholder="sk-..." oninput="saveApiKey()" style="font-family: monospace;">
                 
                 <label style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; display: block;">مدل هوش مصنوعی:</label>
-                <select id="deepseekModel">
+                <select id="deepseekModel" onchange="saveApiKey()">
                     <option value="deepseek-chat">deepseek-chat (پیش‌فرض - سریع و دقیق)</option>
-                    <option value="deepseek-reasoner">deepseek-reasoner (استدلال عمیق دارویی)</option>
+                    <option value="deepseek-reasoner">deepseek-reasoner (استدلال بالینی عمیق)</option>
                 </select>
 
                 <div style="display: flex; gap: 8px; margin-top: 10px;">
-                    <button onclick="saveDeepSeekConfig()" style="flex: 1;">ذخیره تنظیمات</button>
+                    <button onclick="saveApiKey(); checkDeepSeekStatus();" style="flex: 1;">ذخیره تنظیمات</button>
                     <button onclick="testDeepSeekConnection()" style="flex: 1; background: #334155;">بررسی اتصال</button>
                 </div>
             </div>
         </details>
         
-        <div class="chat-input-bar" style="margin-bottom: 15px;">
+        <div class="chat-input-bar" style="margin-top: 15px; margin-bottom: 15px;">
             <input type="text" id="aiInput" placeholder="پرسش دارویی، تداخل، عوارض یا شرایط بیمار..." onkeydown="if(event.key==='Enter') askAI()">
             <input type="file" accept="image/*" id="aiGallery" style="display:none;" onchange="handleFile(event, 'ai')">
             <input type="file" accept="image/*" capture="environment" id="aiCamera" style="display:none;" onchange="handleFile(event, 'ai')">
@@ -441,8 +467,20 @@
     <div id="tab-alarm" class="section" style="display:none;">
         <h2>تنظیم آلارم دارو</h2>
         <input type="text" id="alarmDrugName" placeholder="نام دارو برای آلارم (مثلاً: متفورمین)">
+        <input type="text" id="alarmDosage" placeholder="دوز و مقدار مصرفی (مثلاً: ۵۰۰ میلی‌گرم، ۱ قرص)">
         
-        <div class="samsung-clock-picker" style="margin-top: 10px;">
+        <label style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px; display: block;">بازه تکرار مصرف (Interval):</label>
+        <select id="alarmInterval">
+            <option value="once">یک‌بار در روز</option>
+            <option value="4">هر ۴ ساعت</option>
+            <option value="6">هر ۶ ساعت</option>
+            <option value="8">هر ۸ ساعت</option>
+            <option value="12">هر ۱۲ ساعت</option>
+            <option value="24">هر ۲۴ ساعت</option>
+        </select>
+        
+        <label style="font-size: 0.85rem; color: var(--text-muted); margin-top: 12px; display: block;">ساعت شروع مصرف (Samsung Clock Picker):</label>
+        <div class="samsung-clock-picker" style="margin-top: 6px;">
             <!-- ساعت سمت چپ -->
             <div class="wheel-container">
                 <label>ساعت (Hour)</label>
@@ -460,23 +498,23 @@
         <div id="alarmList" style="margin-top: 15px;"></div>
     </div>
 
-    <!-- بخش تاریخچه و حساسیتها -->
+    <!-- بخش تاریخچه و حساسیت‌ها -->
     <div id="tab-history" class="section" style="display:none;">
         <h2>تاریخچه مصرف دارو</h2>
         <div id="historyList"></div>
 
         <hr style="border-color: #334155; margin: 20px 0;">
-        <h2>مدیریت حساسیتهای دارویی</h2>
+        <h2>مدیریت حساسیت‌های دارویی</h2>
         <div class="chat-input-bar">
-            <input type="text" id="allergyInput" placeholder="نام داروی حساسیتزا (مثلاً: پنی‌سیلین، آسپرین)..." onkeydown="if(event.key==='Enter') addAllergy()">
+            <input type="text" id="allergyInput" placeholder="نام داروی حساسیت‌زا (مثلاً: پنی‌سیلین، آسپرین)..." onkeydown="if(event.key==='Enter') addAllergy()">
             <button onclick="addAllergy()">افزودن</button>
         </div>
         <div id="allergyList" style="margin-top: 10px;"></div>
     </div>
 
-    <!-- بخش عیبیابی دقیق -->
+    <!-- بخش عیب‌یابی دقیق لاگ سیستم -->
     <div id="tab-debug" class="section" style="display:none;">
-        <h2>بخش عیبیابی و لاگ سیستم</h2>
+        <h2>بخش عیب‌یابی و لاگ سیستم</h2>
         <div id="debug-box">سیستم پایدار است و هیچ خطایی ثبت نشده.</div>
         <button onclick="clearDebugLogs()" style="background: #334155; margin-top: 10px; width: 100%;">پاکسازی خطاها</button>
     </div>
@@ -487,7 +525,7 @@
         <button onclick="showTab('ai-consultation')" id="btn-ai-consultation">🤖 مشاوره</button>
         <button onclick="showTab('alarm')" id="btn-alarm">⏰ آلارم</button>
         <button onclick="showTab('history')" id="btn-history">📋 تاریخچه</button>
-        <button onclick="showTab('debug')" id="btn-debug">🛠 عیبیابی</button>
+        <button onclick="showTab('debug')" id="btn-debug">🛠 عیب‌یابی</button>
     </div>
 
 <script>
@@ -503,7 +541,7 @@
         const debugBox = document.getElementById('debug-box');
         if (!debugBox) return;
         const time = new Date().toLocaleTimeString('fa-IR');
-        if(debugBox.innerText.includes('سیستم پایدار است')) debugBox.innerText = '';
+        if (debugBox.innerText.includes('سیستم پایدار است')) debugBox.innerText = '';
         debugBox.innerText += `[${time}] ${message}\n`;
         debugBox.scrollTop = debugBox.scrollHeight;
     }
@@ -515,7 +553,12 @@
         }
     }
 
+    const tabs = ['drug', 'ai-consultation', 'alarm', 'history', 'debug'];
+    let currentTab = 'drug';
+
     function showTab(tabName) {
+        if (!tabs.includes(tabName)) return;
+        currentTab = tabName;
         document.querySelectorAll('.section').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.nav-bar button').forEach(btn => btn.classList.remove('active'));
         const targetSection = document.getElementById('tab-' + tabName);
@@ -528,6 +571,77 @@
         }
     }
 
+    // پیمایش لمسی روان میان بخش‌ها (Horizontal Swipe Gesture Navigation)
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+    let isSwipeIgnored = false;
+
+    function initSwipeGestures() {
+        document.addEventListener('touchstart', (e) => {
+            if (!e.touches || e.touches.length === 0) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            touchEndX = touchStartX;
+            touchEndY = touchStartY;
+            const target = e.target;
+            if (target.closest('.wheel-picker') || 
+                target.closest('.wheel-scroll') || 
+                target.closest('.wheel-container') || 
+                target.closest('.chip-container') || 
+                target.closest('input') || 
+                target.closest('textarea') || 
+                target.closest('select') ||
+                target.closest('#debug-box') ||
+                target.closest('#drugHistoryLog') ||
+                target.closest('#aiResponseContainer') ||
+                target.closest('#historyList') ||
+                target.closest('#alarmList')) {
+                isSwipeIgnored = true;
+            } else {
+                isSwipeIgnored = false;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches.length > 0) {
+                touchEndX = e.touches[0].clientX;
+                touchEndY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (isSwipeIgnored) return;
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                touchEndX = e.changedTouches[0].clientX;
+                touchEndY = e.changedTouches[0].clientY;
+            }
+            handleSwipeGesture();
+        }, { passive: true });
+    }
+
+    function handleSwipeGesture() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const minSwipeDistance = 50;
+
+        if (Math.abs(deltaY) > Math.abs(deltaX) * 0.75) return;
+        if (Math.abs(deltaX) < minSwipeDistance) return;
+
+        const currentIndex = tabs.indexOf(currentTab);
+        if (currentIndex === -1) return;
+
+        // در چیدمان راست‌به‌چپ (RTL):
+        // کشیدن به چپ (deltaX < 0) تب بعدی
+        // کشیدن به راست (deltaX > 0) تب قبلی
+        if (deltaX < 0 && currentIndex < tabs.length - 1) {
+            showTab(tabs[currentIndex + 1]);
+        } else if (deltaX > 0 && currentIndex > 0) {
+            showTab(tabs[currentIndex - 1]);
+        }
+    }
+
     // بارگذاری پایگاه داده جامع ۶۸۴ داروی کتاب مرجع
     async function initMedicationsDatabase() {
         try {
@@ -537,7 +651,6 @@
                 return;
             }
 
-            // تلاش برای واکشی فایلی در صورت نیاز
             const res = await fetch('all_medications.json');
             if (res.ok) {
                 const data = await res.json();
@@ -548,7 +661,6 @@
             }
         } catch (err) {
             logDebug(`خطا در واکشی فایل دارو: ${err.message}. بارگذاری جایگزین...`);
-            // در صورت بروز خطا اگر هنوز خالی است
             if (allMedications.length === 0 && window.ALL_DRUGS_DATA) {
                 allMedications = window.ALL_DRUGS_DATA.drugs || [];
             }
@@ -587,7 +699,7 @@
         }
 
         dropEl.innerHTML = matches.map(d => `
-            <div class="suggestion-item" onclick="selectDrugFromSuggestion('${escapeHtml(d.drug_name)}')">
+            <div class="suggestion-item" onclick="selectDrug('${escapeHtml(d.drug_name)}')">
                 <div>
                     <b>${d.drug_name}</b>
                     <small style="color:var(--text-muted); display:block;">${d.generic_name_en || ''}</small>
@@ -601,7 +713,7 @@
         dropEl.style.display = 'block';
     }
 
-    function selectDrugFromSuggestion(drugName) {
+    function selectDrug(drugName) {
         document.getElementById('drugInput').value = drugName;
         document.getElementById('drugSuggestions').style.display = 'none';
         processDrugSearch();
@@ -612,9 +724,7 @@
         document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
         if (chipEl) chipEl.classList.add('active');
 
-        const resDiv = document.getElementById('drugResult');
         let filtered = [];
-
         if (cat === 'all') {
             filtered = allMedications.slice(0, 25);
         } else if (cat === 'high_risk') {
@@ -664,9 +774,7 @@
         `;
     }
 
-    // ------------------------------------------------------------------------
     // ۱. بررسی ایمنی بیمار و تداخلات دارویی (Patient Safety & Cross-Referencing)
-    // ------------------------------------------------------------------------
     function checkPatientSafetyAlerts(queryOrDrugName, matchedDrug) {
         const alerts = [];
         const allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
@@ -693,7 +801,7 @@
 
         if (matchedAllergy) {
             alerts.push(`
-                <div style="background:rgba(244,63,94,0.25); border:2px solid var(--danger); padding:12px; border-radius:10px; margin-bottom:12px; color:#fecdd3; animation:pulse 2s infinite;">
+                <div style="background:rgba(244,63,94,0.25); border:2px solid var(--danger); padding:12px; border-radius:10px; margin-bottom:12px; color:#fecdd3;">
                     <div style="font-weight:bold; color:var(--danger); font-size:1.05rem; margin-bottom:4px;">🚨 هشدار فوق‌العاده حساس: حساسیت دارویی ثبت‌شده بیمار!</div>
                     <div>طبق سوابق پرونده، بیمار به داروی «<b>${matchedAllergy.name}</b>» حساسیت دارد. از مصرف، تجویز و داروهای هم‌خانواده آن اکیداً خودداری فرمایید.</div>
                 </div>
@@ -737,8 +845,8 @@
         }
         container.innerHTML = history.map(item => `
             <div style="background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; position: relative;">
-                <button onclick="deleteSingleDrugHistory(${item.id})" style="position: absolute; left: 8px; top: 8px; background: transparent; color: var(--danger); border: none; font-size: 0.85rem; cursor: pointer;" title="حذف این مورد">✕</button>
-                <div style="font-size: 0.8rem; color: var(--accent-color); margin-bottom: 6px;">🔍 جستجو: <b>${item.query}</b> <small style="color:var(--text-muted);">(${item.time || ''})</small></div>
+                <button onclick="event.stopPropagation(); deleteSingleDrugHistory(${item.id})" style="position: absolute; left: 8px; top: 8px; background: transparent; color: var(--danger); border: none; font-size: 0.85rem; cursor: pointer; padding: 4px 8px;" title="حذف این مورد">✕</button>
+                <div style="font-size: 0.8rem; color: var(--accent-color); margin-bottom: 6px; padding-left: 20px;">🔍 جستجو: <b>${escapeHtml(item.query)}</b> <small style="color:var(--text-muted);">(${item.time || ''})</small></div>
                 <div>${item.html}</div>
             </div>
         `).join('');
@@ -779,10 +887,9 @@
         if(!query) return;
 
         logDebug(`جستجوی هوشمند در ۶۸۴ دارو برای: ${query}`);
-
         const q = query.toLowerCase();
 
-        // 1. جستجوی دقیق نام
+        // ۱. جستجوی دقیق نام
         let exactMatch = allMedications.find(d => 
             (d.drug_name && d.drug_name.toLowerCase() === q) || 
             (d.generic_name_en && d.generic_name_en.toLowerCase() === q)
@@ -793,19 +900,19 @@
             resDiv.innerHTML = safetyAlert + renderDrugCardHtml(exactMatch);
             recordDrugSearchHistory(query, `
                 <b style="color:var(--accent-color);">${exactMatch.drug_name}:</b> ${exactMatch.indications || exactMatch.therapeutic_class || ''}
-                <div style="margin-top:6px;"><button onclick="finishMedication('${escapeHtml(exactMatch.drug_name)}')" style="background:var(--success); font-size:0.75rem; padding:4px 8px;">اتمام مصرف و انتقال به تاریخچه</button></div>
+                <div style="margin-top:6px;"><button onclick="logConsumption('${escapeHtml(exactMatch.drug_name)}')" style="background:var(--success); font-size:0.75rem; padding:4px 8px;">اتمام مصرف و انتقال به تاریخچه</button></div>
             `);
             return;
         }
 
-        // 2. جستجوی زیررشته‌ای در نام یا اسامی تجاری
+        // ۲. جستجوی زیررشته‌ای در نام یا اسامی تجاری
         let matches = allMedications.filter(d => 
             (d.drug_name && d.drug_name.toLowerCase().includes(q)) ||
             (d.generic_name_en && d.generic_name_en.toLowerCase().includes(q)) ||
             (d.trade_names && d.trade_names.toLowerCase().includes(q))
         );
 
-        // 3. اگر یافت نشد، جستجو در موارد مصرف، دسته درمانی یا عوارض
+        // ۳. اگر یافت نشد، جستجو در موارد مصرف، دسته درمانی یا عوارض
         if (matches.length === 0) {
             matches = allMedications.filter(d => 
                 (d.therapeutic_class && d.therapeutic_class.toLowerCase().includes(q)) ||
@@ -820,7 +927,7 @@
             resDiv.innerHTML = safetyAlert + renderDrugCardHtml(matches[0]);
             recordDrugSearchHistory(query, `
                 <b style="color:var(--accent-color);">${matches[0].drug_name}:</b> ${matches[0].indications || matches[0].therapeutic_class || ''}
-                <div style="margin-top:6px;"><button onclick="finishMedication('${escapeHtml(matches[0].drug_name)}')" style="background:var(--success); font-size:0.75rem; padding:4px 8px;">اتمام مصرف و انتقال به تاریخچه</button></div>
+                <div style="margin-top:6px;"><button onclick="logConsumption('${escapeHtml(matches[0].drug_name)}')" style="background:var(--success); font-size:0.75rem; padding:4px 8px;">اتمام مصرف و انتقال به تاریخچه</button></div>
             `);
         } else if (matches.length > 1) {
             resDiv.innerHTML = safetyAlert + `
@@ -857,7 +964,8 @@
     function renderSingleDrugCard(drugName) {
         const drug = allMedications.find(d => d.drug_name === drugName);
         if (drug) {
-            document.getElementById('drugResult').innerHTML = renderDrugCardHtml(drug);
+            const safetyAlert = checkPatientSafetyAlerts(drugName, drug);
+            document.getElementById('drugResult').innerHTML = safetyAlert + renderDrugCardHtml(drug);
         }
     }
 
@@ -961,8 +1069,8 @@
                 ` : ''}
 
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px; border-top:1px solid #334155; padding-top:12px;">
-                    <button onclick="quickSetAlarm('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:#334155;">⏰ تنظیم آلارم دارو</button>
-                    <button onclick="finishMedication('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:var(--success);">✓ ثبت در تاریخچه مصرف</button>
+                    <button onclick="quickSetAlarm('${escapeHtml(d.drug_name)}', '${escapeHtml(d.adult_dose_display || '')}')" style="font-size:0.8rem; background:#334155;">⏰ تنظیم آلارم دارو</button>
+                    <button onclick="logConsumption('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:var(--success);">✓ ثبت در تاریخچه مصرف</button>
                     <button onclick="switchToAI('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem;">🤖 مشاوره تخصصی هوش مصنوعی</button>
                     <button onclick="quickAddAllergy('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:var(--danger);">⚠️ ثبت در حساسیت‌ها</button>
                 </div>
@@ -972,12 +1080,17 @@
 
     function escapeHtml(text) {
         if (!text) return '';
-        return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return String(text).replace(/'/g, "\\'").replace(/"/g, '&quot;');
     }
 
-    function quickSetAlarm(drugName) {
+    function quickSetAlarm(drugName, defaultDose = '') {
         showTab('alarm');
-        document.getElementById('alarmDrugName').value = drugName;
+        const drugInput = document.getElementById('alarmDrugName');
+        if (drugInput) drugInput.value = drugName;
+        const doseInput = document.getElementById('alarmDosage');
+        if (doseInput && defaultDose) {
+            doseInput.value = defaultDose.split('.')[0].substring(0, 40);
+        }
     }
 
     function quickAddAllergy(drugName) {
@@ -985,7 +1098,7 @@
         if (!allergies.some(a => a.name === drugName)) {
             allergies.push({ id: Date.now(), name: drugName });
             localStorage.setItem('drugAllergies', JSON.stringify(allergies));
-            loadHistory();
+            renderAllergies();
             alert(`داروی «${drugName}» با موفقیت به فهرست حساسیت‌های شما افزوده شد.`);
             logDebug(`حساسیت دارویی ثبت شد: ${drugName}`);
         } else {
@@ -1002,7 +1115,7 @@
         askAI();
     }
 
-    // ساخت غلتک ساعت و دقیقه چرخشی سامسونگ (۰ تا ۲۳ ساعت و ۰ تا ۵۹ دقیقه کامل)
+    // ساخت غلتک ساعت و دقیقه چرخشی سامسونگ (۰ تا ۲۳ ساعت و ۰ تا ۵۹ دقیقه کامل، پیش‌فرض 00:00)
     function initClockWheels() {
         const hourWheel = document.getElementById('hourWheel');
         const minuteWheel = document.getElementById('minuteWheel');
@@ -1021,17 +1134,15 @@
             minuteWheel.innerHTML += `<div class="wheel-item" data-val="${val}">${val}</div>`;
         }
 
-        const now = new Date();
-        const curHour = now.getHours();
-        const curMin = now.getMinutes();
-        hourWheel.scrollTop = curHour * 40;
-        minuteWheel.scrollTop = curMin * 40;
+        // مقداردهی پیش‌فرض غلتک زمان سامسونگ به 00:00
+        hourWheel.scrollTop = 0;
+        minuteWheel.scrollTop = 0;
     }
 
     function getSelectedTime() {
         const hourWheel = document.getElementById('hourWheel');
         const minuteWheel = document.getElementById('minuteWheel');
-        if (!hourWheel || !minuteWheel) return { hour: '08', minute: '00' };
+        if (!hourWheel || !minuteWheel) return { hour: '00', minute: '00' };
         
         const hourIndex = Math.max(0, Math.min(23, Math.round(hourWheel.scrollTop / 40)));
         const minuteIndex = Math.max(0, Math.min(59, Math.round(minuteWheel.scrollTop / 40)));
@@ -1045,30 +1156,31 @@
         return { hour: selectedHour, minute: selectedMinute };
     }
 
-    // تنظیمات و ارتباط با دیپ‌سیک
-    function saveDeepSeekConfig() {
-        const apiKey = document.getElementById('deepseekApiKey').value.trim();
-        const model = document.getElementById('deepseekModel').value;
-        if(apiKey) localStorage.setItem('ds_api_key', apiKey);
-        if(model) localStorage.setItem('ds_model', model);
-        alert('تنظیمات دیپ‌سیک ذخیره شد.');
+    // تنظیمات و ذخیره کلید API
+    function saveApiKey() {
+        const keyInput = document.getElementById('userApiKey');
+        const modelSelect = document.getElementById('deepseekModel');
+        const key = keyInput ? keyInput.value.trim() : '';
+        const model = modelSelect ? modelSelect.value : 'deepseek-chat';
+
+        if (key) localStorage.setItem('ds_api_key', key);
+        if (model) localStorage.setItem('ds_model', model);
         logDebug('تنظیمات DeepSeek به‌روزرسانی شد.');
-        checkDeepSeekStatus();
     }
 
-    function loadDeepSeekConfig() {
+    function loadApiKey() {
         const savedKey = localStorage.getItem('ds_api_key') || '';
         const savedModel = localStorage.getItem('ds_model') || 'deepseek-chat';
-        const keyInput = document.getElementById('deepseekApiKey');
+        const keyInput = document.getElementById('userApiKey');
         const modelSelect = document.getElementById('deepseekModel');
-        if(keyInput && savedKey) keyInput.value = savedKey;
-        if(modelSelect) modelSelect.value = savedModel;
+        if (keyInput && savedKey) keyInput.value = savedKey;
+        if (modelSelect) modelSelect.value = savedModel;
     }
 
     async function checkDeepSeekStatus() {
         const badge = document.getElementById('aiStatusBadge');
         if(!badge) return;
-        const apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('deepseekApiKey') ? document.getElementById('deepseekApiKey').value.trim() : '');
+        const apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('userApiKey') ? document.getElementById('userApiKey').value.trim() : '');
 
         if (!apiKey) {
             badge.className = 'status-badge offline';
@@ -1101,24 +1213,16 @@
             }
         } catch (e) {
             badge.className = 'status-badge offline';
-            badge.innerHTML = '● دیپ‌سیک: عدم دسترسی به اینترنت / سرور';
+            badge.innerHTML = '● دیپ‌سیک: عدم دسترسی به سرور (آفلاین ۶۸۴ دارو)';
             logDebug(`عدم ارتباط با دیپ‌سیک: ${e.message}`);
         }
     }
 
     async function testDeepSeekConnection() {
-        const apiKey = document.getElementById('deepseekApiKey').value.trim();
-        if(!apiKey) {
-            alert('لطفاً ابتدا کلید API دیپ‌سیک را وارد کنید.');
-            return;
-        }
-        saveDeepSeekConfig();
+        saveApiKey();
         await checkDeepSeekStatus();
-        alert('بررسی اتصال انجام شد. وضعیت را در بالای بخش مشاوره مشاهده فرمایید.');
+        alert('بررسی اتصال دیپ‌سیک به پایان رسید. وضعیت در نوار بالای بخش مشاوره قابل مشاهده است.');
     }
-
-    // کلید پیش‌فرض داخلی جهت پشتیبانی از مقیاس‌پذیری و کاربران بالا بدون نیاز به تنظیمات دستی
-    const DEFAULT_DS_KEY = "sk-default-embedded-token-placeholder";
 
     // تاریخچه اختصاصی مشاوره‌های هوش مصنوعی (Multi-Turn Consultation Log)
     function loadAiHistory() {
@@ -1131,8 +1235,8 @@
         }
         container.innerHTML = aiHistory.map(item => `
             <div style="background: #0f172a; padding: 14px; border-radius: 10px; border: 1px solid #334155; position: relative;">
-                <button onclick="deleteSingleAiHistory(${item.id})" style="position: absolute; left: 8px; top: 8px; background: transparent; color: var(--danger); border: none; font-size: 0.85rem; cursor: pointer;" title="حذف این مورد">✕</button>
-                <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 8px;">👤 <b>پرسش:</b> ${escapeHtml(item.prompt)} <small style="color:var(--text-muted);">(${item.time || ''})</small></div>
+                <button onclick="event.stopPropagation(); deleteSingleAiHistory('${item.id}')" style="position: absolute; left: 8px; top: 8px; background: transparent; color: var(--danger); border: none; font-size: 0.85rem; cursor: pointer; padding: 4px 8px;" title="حذف این مورد">✕</button>
+                <div style="font-size: 0.85rem; color: var(--accent-color); margin-bottom: 8px; padding-left: 24px;">👤 <b>پرسش:</b> ${escapeHtml(item.prompt)} <small style="color:var(--text-muted);">(${item.time || ''})</small></div>
                 <div style="font-size: 0.9rem; color: var(--text-main); line-height: 1.8;">${item.reply}</div>
             </div>
         `).join('');
@@ -1146,13 +1250,14 @@
 
     function deleteSingleAiHistory(id) {
         let aiHistory = JSON.parse(localStorage.getItem('persistentAiHistory') || '[]');
-        aiHistory = aiHistory.filter(item => item.id !== id);
+        aiHistory = aiHistory.filter(item => String(item.id) !== String(id));
         localStorage.setItem('persistentAiHistory', JSON.stringify(aiHistory));
         loadAiHistory();
     }
 
     function recordAiHistory(prompt, replyHtml) {
         let aiHistory = JSON.parse(localStorage.getItem('persistentAiHistory') || '[]');
+        aiHistory = aiHistory.filter(item => item.id !== 'loading_temp');
         aiHistory.unshift({
             id: Date.now(),
             prompt: prompt,
@@ -1172,7 +1277,7 @@
         const sendBtn = document.getElementById('aiSendBtn');
         if(!text) return;
 
-        let apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('deepseekApiKey') ? document.getElementById('deepseekApiKey').value.trim() : '');
+        let apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('userApiKey') ? document.getElementById('userApiKey').value.trim() : '');
         const model = localStorage.getItem('ds_model') || 'deepseek-chat';
 
         if (resDiv) {
@@ -1180,6 +1285,18 @@
             resDiv.innerHTML = `<span style="color:var(--accent-color);">در حال پردازش بالینی و استخراج اطلاعات از مراجع رسمی داروشناسی...</span>`;
         }
         if (sendBtn) sendBtn.disabled = true;
+
+        // افزودن آیتم لودینگ موقت در تاریخچه گفتگو
+        let aiHistory = JSON.parse(localStorage.getItem('persistentAiHistory') || '[]');
+        aiHistory = aiHistory.filter(item => item.id !== 'loading_temp');
+        aiHistory.unshift({
+            id: 'loading_temp',
+            prompt: text,
+            reply: '<span style="color:var(--accent-color);">⏳ در حال پردازش بالینی و استخراج اطلاعات از مراجع رسمی داروشناسی...</span>',
+            time: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' })
+        });
+        localStorage.setItem('persistentAiHistory', JSON.stringify(aiHistory));
+        loadAiHistory();
 
         logDebug(`ارسال استعلام بالینی هوش مصنوعی: ${text.substring(0, 45)}...`);
 
@@ -1189,19 +1306,14 @@
         // ارزیابی فوری مهاربندهای ایمنی بیمار و حساسیت‌ها
         const safetyAlert = checkPatientSafetyAlerts(text, matchedDrug);
 
-        // در صورت عدم وجود کلید کاربر، استفاده از کلید پیش‌فرض یا موتور آفلاین
-        let activeKey = apiKey;
-        if (!activeKey && DEFAULT_DS_KEY && !DEFAULT_DS_KEY.includes('placeholder')) {
-            activeKey = DEFAULT_DS_KEY;
-        }
-
-        if (!activeKey) {
+        // در صورت عدم تنظیم کلید، استفاده فوری از دانشنامه ۶۸۴ داروی رسمی
+        if (!apiKey) {
             setTimeout(() => {
                 const offlineAdvice = getOfflineDrugAdvice(text);
                 const finalHtml = `
                     ${safetyAlert}
                     <div style="background:rgba(245,158,11,0.15); border:1px solid var(--warning); padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.85rem; color:var(--warning);">
-                        ℹ️ <b>پاسخ مبتنی بر مراجع رسمی داروشناسی و کتاب ۶۸۴ داروی مرجع:</b> برای دریافت استدلال‌های تکمیلی ابری، می‌توانید کلید API خود را در «تنظیمات دیپ‌سیک» بالا وارد کنید.
+                        ℹ️ <b>پاسخ مبتنی بر مراجع رسمی داروشناسی و دانشنامه ۶۸۴ داروی مرجع (FDA / BNF):</b> جهت فعال‌سازی استدلال هوش مصنوعی ابری، کلید API خود را در کادر تنظیمات بالا وارد فرمایید.
                     </div>
                     <div style="line-height:1.7;">${offlineAdvice}</div>
                 `;
@@ -1209,8 +1321,8 @@
                 recordAiHistory(text, finalHtml);
                 if (sendBtn) sendBtn.disabled = false;
                 if (inputEl) inputEl.value = '';
-                logDebug('پاسخ مشاوره‌ای از موتور دانشنامه دارویی صادر و ذخیره شد.');
-            }, 600);
+                logDebug('پاسخ مشاوره‌ای از دانشنامه دارویی صادر و ذخیره شد.');
+            }, 500);
             return;
         }
 
@@ -1234,7 +1346,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${activeKey}`
+                    'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
                     model: model,
@@ -1276,6 +1388,12 @@
             if (inputEl) inputEl.value = '';
         } finally {
             if (sendBtn) sendBtn.disabled = false;
+            let aiHistory = JSON.parse(localStorage.getItem('persistentAiHistory') || '[]');
+            const filtered = aiHistory.filter(item => item.id !== 'loading_temp');
+            if (filtered.length !== aiHistory.length) {
+                localStorage.setItem('persistentAiHistory', JSON.stringify(filtered));
+                loadAiHistory();
+            }
         }
     }
 
@@ -1352,14 +1470,30 @@
         return `اطلاعات بالینی: هر دارو باید دقیقاً مطابق دستور پزشک و نسخه معتبر استفاده شود. دوره درمان آنتی‌بیوتیک‌ها باید کامل گردد و داروهای مسکن و ضدالتهاب همراه غذا مصرف شوند. در صورت داشتن حساسیت یا بروز علائم حاد (تنگی نفس، کهیر، تپش قلب) فوراً به اورژانس مراجعه فرمایید.`;
     }
 
-    // مدیریت صوتی هوشمند (با پنجره پیش‌فرض ۸ ثانیه‌ای و قابلیت استارت/استاپ پایدار)
+    // مدیریت صوتی هوشمند (با پنجره قطع خودکار ۱۰ ثانیه‌ای و قابلیت استارت/استاپ پایدار)
     let recognition = null;
     let activeRecordingInputId = null;
     let voiceTimeout = null;
 
+    function stopVoiceRecognition() {
+        if (voiceTimeout) {
+            clearTimeout(voiceTimeout);
+            voiceTimeout = null;
+        }
+        if (recognition) {
+            try { recognition.stop(); } catch(e) {}
+            recognition = null;
+        }
+        if (activeRecordingInputId) {
+            const btn = document.getElementById('mic-' + activeRecordingInputId);
+            if (btn) btn.classList.remove('active-mic');
+            activeRecordingInputId = null;
+        }
+    }
+
     function toggleVoice(inputId) {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert('مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند.');
+            alert('مرورگر یا دستگاه شما از تایپ صوتی پشتیبانی نمی‌کند.');
             return;
         }
 
@@ -1367,41 +1501,42 @@
 
         // اگر در حال حاضر همین ورودی ضبط می‌شود، متوقف کن
         if (recognition && activeRecordingInputId === inputId) {
-            clearTimeout(voiceTimeout);
-            recognition.stop();
+            stopVoiceRecognition();
             return;
         }
 
         // اگر ورودی دیگری در حال ضبط بود متوقف شود
         if (recognition) {
-            clearTimeout(voiceTimeout);
-            try { recognition.stop(); } catch(e) {}
+            stopVoiceRecognition();
         }
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
         recognition.lang = 'fa-IR';
         recognition.interimResults = true;
-        recognition.continuous = false;
+        recognition.continuous = true;
+
+        function resetVoiceTimer() {
+            clearTimeout(voiceTimeout);
+            voiceTimeout = setTimeout(() => {
+                logDebug('پایان بازه ۱۰ ثانیه‌ای گفتار (قطع خودکار ۱۰ ثانیه).');
+                stopVoiceRecognition();
+                if (inputId === 'drugInput') {
+                    processDrugSearch();
+                }
+            }, 10000);
+        }
 
         recognition.onstart = function() {
             activeRecordingInputId = inputId;
             if (btn) btn.classList.add('active-mic');
-            logDebug(`شروع ضبط صوت برای ${inputId} (پنجره فعال ۸ ثانیه‌ای)...`);
-
-            // پنجره زمانی ۸ ثانیه‌ای برای اتمام خودکار در صورت سکوت
-            clearTimeout(voiceTimeout);
-            voiceTimeout = setTimeout(() => {
-                if (recognition && activeRecordingInputId === inputId) {
-                    logDebug('پایان بازه ۸ ثانیه‌ای گفتار.');
-                    try { recognition.stop(); } catch(e) {}
-                }
-            }, 8000);
+            logDebug(`شروع ضبط صوت برای ${inputId} (پنجره قطع خودکار ۱۰ ثانیه‌ای)...`);
+            resetVoiceTimer();
         };
 
         recognition.onresult = function(event) {
             let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
+            for (let i = 0; i < event.results.length; ++i) {
                 transcript += event.results[i][0].transcript;
             }
             const targetEl = document.getElementById(inputId);
@@ -1411,6 +1546,7 @@
             if (inputId === 'drugInput') {
                 onDrugInputChanged();
             }
+            resetVoiceTimer();
         };
 
         recognition.onerror = function(e) {
@@ -1423,9 +1559,11 @@
         recognition.onend = function() {
             clearTimeout(voiceTimeout);
             if (btn) btn.classList.remove('active-mic');
+            const finishedInputId = activeRecordingInputId;
             activeRecordingInputId = null;
+            recognition = null;
             logDebug('پایان ضبط صوت.');
-            if (inputId === 'drugInput') {
+            if (finishedInputId === 'drugInput') {
                 processDrugSearch();
             }
         };
@@ -1459,9 +1597,32 @@
         }
     }
 
-    // آلارم داروها
+    // صدای زنگ آلارم از طریق Web Audio API
+    function playAlarmChime() {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+            osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+            osc.frequency.setValueAtTime(1174.66, audioCtx.currentTime + 0.3); // D6
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.8);
+        } catch(e) {
+            logDebug("عدم پشتیبانی یا مسدود بودن صدا: " + e.message);
+        }
+    }
+
+    // سیستم جامع آلارم داروها
     function saveDrugAlarm() {
         const drug = document.getElementById('alarmDrugName').value.trim();
+        const dosage = document.getElementById('alarmDosage') ? document.getElementById('alarmDosage').value.trim() : '';
+        const interval = document.getElementById('alarmInterval') ? document.getElementById('alarmInterval').value : 'once';
         const timeObj = getSelectedTime();
 
         if(!drug) {
@@ -1470,49 +1631,186 @@
         }
 
         let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
-        alarms.push({ id: Date.now(), drug, time: `${timeObj.hour}:${timeObj.minute}` });
+        alarms.push({
+            id: Date.now(),
+            drug: drug,
+            dosage: dosage,
+            interval: interval,
+            time: `${timeObj.hour}:${timeObj.minute}`,
+            enabled: true
+        });
         localStorage.setItem('drugAlarms', JSON.stringify(alarms));
-        loadAlarms();
+        renderAlarms();
         document.getElementById('alarmDrugName').value = '';
+        if (document.getElementById('alarmDosage')) document.getElementById('alarmDosage').value = '';
         alert(`آلارم داروی «${drug}» برای ساعت ${timeObj.hour}:${timeObj.minute} ثبت گردید.`);
-        logDebug(`آلارم جدید: ${drug} در ساعت ${timeObj.hour}:${timeObj.minute}`);
+        logDebug(`آلارم جدید: ${drug} (${dosage || 'بدون دوز'}) در ساعت ${timeObj.hour}:${timeObj.minute}`);
+
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    function toggleAlarm(id) {
+        let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
+        alarms = alarms.map(a => {
+            if (a.id === id) {
+                return { ...a, enabled: a.enabled === false ? true : false };
+            }
+            return a;
+        });
+        localStorage.setItem('drugAlarms', JSON.stringify(alarms));
+        renderAlarms();
     }
 
     function deleteAlarm(id) {
         let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
         alarms = alarms.filter(a => a.id !== id);
         localStorage.setItem('drugAlarms', JSON.stringify(alarms));
-        loadAlarms();
+        renderAlarms();
         logDebug(`آلارم ${id} حذف شد.`);
     }
 
     function loadAlarms() {
+        renderAlarms();
+    }
+
+    function renderAlarms() {
         let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
         const container = document.getElementById('alarmList');
         if (!container) return;
-        container.innerHTML = alarms.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">هیچ آلارمی ثبت نشده است.</p>' : alarms.map(a => `
-            <div class="list-item">
-                <span>⏰ ${a.drug} - ساعت ${a.time}</span>
-                <button class="delete-btn" onclick="deleteAlarm(${a.id})">حذف</button>
-            </div>
-        `).join('');
+        if (alarms.length === 0) {
+            container.innerHTML = '<p style="color:var(--text-muted); text-align:center; font-size:0.9rem;">هیچ آلارمی ثبت نشده است.</p>';
+            return;
+        }
+
+        const intervalLabels = {
+            'once': 'یک‌بار در روز',
+            '4': 'هر ۴ ساعت',
+            '6': 'هر ۶ ساعت',
+            '8': 'هر ۸ ساعت',
+            '12': 'هر ۱۲ ساعت',
+            '24': 'هر ۲۴ ساعت'
+        };
+
+        container.innerHTML = alarms.map(a => {
+            const isEnabled = a.enabled !== false;
+            const intervalText = intervalLabels[a.interval] || (a.interval ? `هر ${a.interval} ساعت` : 'یک‌بار در روز');
+            const doseText = a.dosage ? ` - دوز: <b>${escapeHtml(a.dosage)}</b>` : '';
+            return `
+                <div class="list-item" style="opacity: ${isEnabled ? '1' : '0.6'};">
+                    <div>
+                        <div>
+                            <b style="color:var(--accent-color);">⏰ ${escapeHtml(a.drug)}</b>
+                            <span style="font-size:0.8rem; color:var(--text-muted);">${doseText}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                            <span>ساعت: <b style="color:var(--text-main);">${a.time}</b></span> | 
+                            <span>تکرار: ${intervalText}</span>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <button onclick="toggleAlarm(${a.id})" style="padding:4px 8px; font-size:0.75rem; background:${isEnabled ? 'var(--success)' : '#475569'};">
+                            ${isEnabled ? 'فعال' : 'غیرفعال'}
+                        </button>
+                        <button class="delete-btn" onclick="deleteAlarm(${a.id})" style="padding:4px 8px; font-size:0.75rem;">حذف</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
-    // تاریخچه و حساسیت‌ها
-    function finishMedication(drugName) {
+    function triggerAlarm(alarm) {
+        playAlarmChime();
+        logDebug(`🔔 زنگ آلارم برای داروی: ${alarm.drug}`);
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(`⏰ زمان مصرف داروی ${alarm.drug}`, {
+                body: `دوز: ${alarm.dosage || 'طبق دستور'} - ساعت: ${alarm.time}`,
+                icon: 'favicon.ico'
+            });
+        }
+
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.right = '0';
+        modal.style.bottom = '0';
+        modal.style.background = 'rgba(0,0,0,0.85)';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.zIndex = '9999';
+        modal.style.padding = '20px';
+
+        modal.innerHTML = `
+            <div style="background:var(--card-bg); border:2px solid var(--accent-color); border-radius:16px; padding:20px; max-width:400px; width:100%; text-align:center; box-shadow:0 15px 35px rgba(0,0,0,0.6);">
+                <div style="font-size:2.5rem; margin-bottom:10px;">⏰</div>
+                <h3 style="margin:0 0 10px 0; color:var(--accent-color); font-size:1.3rem;">زمان مصرف دارو فرا رسید!</h3>
+                <p style="font-size:1.1rem; font-weight:bold; margin:6px 0;">💊 داروی: ${escapeHtml(alarm.drug)}</p>
+                ${alarm.dosage ? `<p style="color:var(--text-muted); margin:4px 0; font-size:0.95rem;">دوز مصرفی: <b>${escapeHtml(alarm.dosage)}</b></p>` : ''}
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:18px;">ساعت تنظیم شده: ${alarm.time}</p>
+                
+                <div style="display:flex; gap:10px; flex-direction:column;">
+                    <button id="alarmConsumeBtn" style="background:var(--success); padding:10px; font-size:0.95rem;">✓ مصرف کردم (ثبت در تاریخچه)</button>
+                    <button id="alarmDismissBtn" style="background:#334155; padding:10px; font-size:0.95rem;">بستن یادآور</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector('#alarmConsumeBtn').onclick = () => {
+            logConsumption(alarm.drug + (alarm.dosage ? ` (${alarm.dosage})` : ''));
+            document.body.removeChild(modal);
+        };
+
+        modal.querySelector('#alarmDismissBtn').onclick = () => {
+            document.body.removeChild(modal);
+        };
+    }
+
+    function checkActiveAlarms() {
+        const alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
+        const now = new Date();
+        const currentHour = String(now.getHours()).padStart(2, '0');
+        const currentMinute = String(now.getMinutes()).padStart(2, '0');
+        const currentTimeStr = `${currentHour}:${currentMinute}`;
+        const todayStr = now.toDateString();
+
+        let updated = false;
+        alarms.forEach(a => {
+            if (a.enabled !== false && a.time === currentTimeStr && a.lastTriggeredDate !== todayStr + '_' + currentTimeStr) {
+                a.lastTriggeredDate = todayStr + '_' + currentTimeStr;
+                updated = true;
+                triggerAlarm(a);
+            }
+        });
+        if (updated) {
+            localStorage.setItem('drugAlarms', JSON.stringify(alarms));
+        }
+    }
+
+    // تاریخچه مصرف و حساسیت‌ها
+    function logConsumption(drugName) {
         let history = JSON.parse(localStorage.getItem('drugHistory') || '[]');
         history.unshift({ id: Date.now(), drugName, time: new Date().toLocaleString('fa-IR') });
         localStorage.setItem('drugHistory', JSON.stringify(history));
-        loadHistory();
+        renderHistory();
         alert(`داروی «${drugName}» به تاریخچه مصرف اضافه شد.`);
-        logDebug(`دارو به تاریخچه اضافه شد: ${drugName}`);
+        logDebug(`دارو به تاریخچه مصرف اضافه شد: ${drugName}`);
+    }
+
+    function finishMedication(drugName) {
+        logConsumption(drugName);
     }
 
     function deleteHistory(id) {
         let history = JSON.parse(localStorage.getItem('drugHistory') || '[]');
         history = history.filter(h => h.id !== id);
         localStorage.setItem('drugHistory', JSON.stringify(history));
-        loadHistory();
+        renderHistory();
     }
 
     function addAllergy() {
@@ -1523,7 +1821,7 @@
         allergies.push({ id: Date.now(), name: allergy });
         localStorage.setItem('drugAllergies', JSON.stringify(allergies));
         allergyInput.value = '';
-        loadHistory();
+        renderAllergies();
         alert(`حساسیت به «${allergy}» ذخیره شد.`);
         logDebug(`حساسیت جدید ثبت شد: ${allergy}`);
     }
@@ -1532,44 +1830,50 @@
         let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
         allergies = allergies.filter(a => a.id !== id);
         localStorage.setItem('drugAllergies', JSON.stringify(allergies));
-        loadHistory();
+        renderAllergies();
+    }
+
+    function renderHistory() {
+        const histContainer = document.getElementById('historyList');
+        if (!histContainer) return;
+        let history = JSON.parse(localStorage.getItem('drugHistory') || '[]');
+        histContainer.innerHTML = history.length === 0 ? '<p style="color:var(--text-muted); text-align:center; font-size:0.85rem;">تاریخچه مصرف خالی است.</p>' : history.map(item => `
+            <div class="list-item">
+                <span>💊 <b>${escapeHtml(item.drugName)}</b> <small style="color:var(--text-muted); font-size:0.75rem;">(${item.time})</small></span>
+                <button class="delete-btn" onclick="deleteHistory(${item.id})">حذف</button>
+            </div>
+        `).join('');
+    }
+
+    function renderAllergies() {
+        const allergyContainer = document.getElementById('allergyList');
+        if (!allergyContainer) return;
+        let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
+        allergyContainer.innerHTML = allergies.length === 0 ? '<p style="color:var(--text-muted); text-align:center; font-size:0.85rem;">حساسیتی ثبت نشده است.</p>' : allergies.map(al => `
+            <div class="list-item">
+                <span>⚠️ <b>${escapeHtml(al.name)}</b></span>
+                <button class="delete-btn" onclick="deleteAllergy(${al.id})">حذف</button>
+            </div>
+        `).join('');
     }
 
     function loadHistory() {
-        const histContainer = document.getElementById('historyList');
-        const allergyContainer = document.getElementById('allergyList');
-
-        let history = JSON.parse(localStorage.getItem('drugHistory') || '[]');
-        if (histContainer) {
-            histContainer.innerHTML = history.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">تاریخچه مصرف خالی است.</p>' : history.map(item => `
-                <div class="list-item">
-                    <span>💊 ${item.drugName} <small style="color:var(--text-muted); font-size:0.75rem;">(${item.time})</small></span>
-                    <button class="delete-btn" onclick="deleteHistory(${item.id})">حذف</button>
-                </div>
-            `).join('');
-        }
-
-        let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
-        if (allergyContainer) {
-            allergyContainer.innerHTML = allergies.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">حساسیتی ثبت نشده است.</p>' : allergies.map(al => `
-                <div class="list-item">
-                    <span>⚠️ ${al.name}</span>
-                    <button class="delete-btn" onclick="deleteAllergy(${al.id})">حذف</button>
-                </div>
-            `).join('');
-        }
+        renderHistory();
+        renderAllergies();
     }
 
     // بارگذاری اولیه صفحه
     window.addEventListener('DOMContentLoaded', () => {
         initMedicationsDatabase();
         initClockWheels();
-        loadDeepSeekConfig();
-        loadAlarms();
+        initSwipeGestures();
+        loadApiKey();
+        renderAlarms();
         loadHistory();
         loadDrugHistory();
         loadAiHistory();
         checkDeepSeekStatus();
+        setInterval(checkActiveAlarms, 30000);
         logDebug('برنامه داروشناسی هوشمند با موفقیت راه‌اندازی گردید.');
     });
 </script>

@@ -2,7 +2,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>داروشناسی هوشمند</title>
     <style>
         :root {
@@ -14,6 +14,8 @@
             --text-muted: #94a3b8;
             --danger: #f43f5e;
             --success: #10b981;
+            --warning: #f59e0b;
+            --purple: #8b5cf6;
         }
 
         body {
@@ -22,34 +24,34 @@
             color: var(--text-main);
             margin: 0;
             padding: 15px;
-            padding-bottom: 90px;
+            padding-bottom: 95px;
         }
 
         .header {
             text-align: center;
             background: var(--card-bg);
-            padding: 20px;
+            padding: 16px;
             border-radius: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .header h2 {
-            margin: 0 0 5px 0;
+            margin: 0;
             color: var(--accent-color);
             font-size: 1.4rem;
         }
 
         .header p {
-            margin: 0;
+            margin: 6px 0 0 0;
             color: var(--text-muted);
             font-size: 0.85rem;
         }
 
         .section {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 18px;
             margin-bottom: 15px;
             border-radius: 16px;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
@@ -92,9 +94,7 @@
             transition: opacity 0.2s;
         }
 
-        button:hover {
-            opacity: 0.9;
-        }
+        button:hover { opacity: 0.9; }
 
         .delete-btn {
             background: var(--danger);
@@ -103,7 +103,6 @@
             border-radius: 6px;
         }
 
-        /* نوار ورودی چت مدرن */
         .chat-input-bar {
             display: flex;
             gap: 8px;
@@ -115,68 +114,155 @@
             border: 1px solid #334155;
         }
 
-        .chat-input-bar input {
-            margin: 0;
-            border: none;
-            background: transparent;
-        }
+        .chat-input-bar input { margin: 0; border: none; background: transparent; }
+        .chat-input-bar button { background: #334155; padding: 8px 12px; border-radius: 8px; }
+        .chat-input-bar button.active-mic { background: var(--danger) !important; }
 
-        .chat-input-bar button {
-            background: #334155;
-            padding: 8px 12px;
-            border-radius: 8px;
-        }
-
-        .chat-input-bar button.active-mic {
-            background: var(--danger) !important;
-        }
-
-        /* برچسب وضعیت دیپ‌سیک */
-        .badge {
+        /* نشانگر وضعیت ارتباط دیپ‌سیک */
+        .status-badge {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.75rem;
             padding: 4px 10px;
-            border-radius: 9999px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .status-badge.online { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .status-badge.offline { background: rgba(244, 63, 94, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .status-badge.checking { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+
+        /* برچسب‌های دارویی */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
             font-weight: bold;
+            margin-left: 5px;
         }
+        .badge-danger { background: rgba(244, 63, 94, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .badge-info { background: rgba(6, 182, 212, 0.2); color: var(--accent-color); border: 1px solid var(--accent-color); }
+        .badge-purple { background: rgba(139, 92, 246, 0.2); color: var(--purple); border: 1px solid var(--purple); }
 
-        .config-box {
-            background: #090d16;
+        /* چیپ‌های دسته‌بندی سریع داروها */
+        .chip-container {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+            scrollbar-width: none;
+        }
+        .chip-container::-webkit-scrollbar { display: none; }
+        .chip {
+            background: #0f172a;
             border: 1px solid #334155;
-            padding: 14px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            color: var(--text-muted);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .chip.active, .chip:hover {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
         }
 
-        /* انتخابگر ساعت عمودی مشابه اندروید */
-        .clock-picker {
+        /* پیشنهادهای جستجو Live Suggestions */
+        .suggestions-dropdown {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            max-height: 220px;
+            overflow-y: auto;
+            margin-top: 5px;
+            display: none;
+        }
+        .suggestion-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            border-bottom: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .suggestion-item:hover {
+            background: #1e293b;
+        }
+
+        /* کارت جزئیات دارو */
+        .drug-detail-card {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 10px;
+            line-height: 1.7;
+        }
+        .drug-field {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .drug-field-label {
+            color: var(--accent-color);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 2px;
+            font-size: 0.85rem;
+        }
+
+        /* آلارم عمودی چرخشی مشابه سامسونگ */
+        .samsung-clock-picker {
             display: flex;
             justify-content: center;
-            gap: 20px;
             align-items: center;
+            gap: 15px;
             background: #0f172a;
             padding: 15px;
             border-radius: 12px;
             border: 1px solid #334155;
+            direction: ltr;
         }
 
-        .clock-column {
+        .wheel-container {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
-        .clock-column select {
-            font-size: 1.3rem;
-            text-align: center;
-            padding: 8px;
-            width: 80px;
+        .wheel-container label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+
+        .wheel-scroll {
+            height: 100px;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            width: 70px;
             background: #1e293b;
         }
 
-        /* نوار ناوبری پایین شناور */
+        .wheel-scroll::-webkit-scrollbar { display: none; }
+
+        .wheel-item {
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            scroll-snap-align: center;
+            color: var(--text-main);
+        }
+
         .nav-bar {
             display: flex;
             justify-content: space-around;
@@ -184,9 +270,7 @@
             backdrop-filter: blur(10px);
             padding: 10px;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             box-shadow: 0 -10px 25px rgba(0,0,0,0.5);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
             z-index: 1000;
@@ -201,10 +285,7 @@
             padding: 5px;
         }
 
-        .nav-bar button.active {
-            color: var(--accent-color);
-            font-weight: bold;
-        }
+        .nav-bar button.active { color: var(--accent-color); font-weight: bold; }
 
         #debug-box {
             background: #0f172a;
@@ -214,10 +295,8 @@
             border-radius: 8px;
             font-family: monospace;
             font-size: 0.85rem;
-            max-height: 150px;
+            max-height: 120px;
             overflow-y: auto;
-            white-space: pre-wrap;
-            line-height: 1.5;
         }
 
         .list-item {
@@ -230,118 +309,122 @@
             border-radius: 8px;
             border: 1px solid #334155;
         }
+
+        details summary {
+            cursor: pointer;
+            color: var(--accent-color);
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            user-select: none;
+        }
     </style>
+    <!-- بارگذاری داده‌های کامل ۶۸۴ داروی کتاب مرجع ژنریک -->
+    <script src="all_medications.js"></script>
 </head>
 <body>
 
     <div class="header">
         <h2>داروشناسی هوشمند</h2>
-        <p>دستیار دارویی و اتصال هوشمند با هوش مصنوعی دیپ‌سیک (DeepSeek)</p>
+        <p>بانک جامع ۶۸۴ داروی مرجع بالینی + دستیار DeepSeek AI</p>
     </div>
 
     <!-- بخش دارو -->
     <div id="tab-drug" class="section">
-        <h2>بخش دارو</h2>
-        <div id="drugResult" style="margin-bottom: 15px; min-height: 50px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; color: var(--text-muted);">
-            نام دارو را جستجو کنید یا بپرسید...
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="margin: 0; border: none; padding: 0;">بخش داروها</h2>
+            <span id="drugCountBadge" class="badge badge-info">در حال بارگذاری داروها...</span>
         </div>
-        
+
+        <!-- چیپ‌های دسته‌بندی و فیلتر سریع -->
+        <div class="chip-container">
+            <span class="chip active" onclick="filterCategory('all', this)">همه (۶۸۴)</span>
+            <span class="chip" onclick="filterCategory('high_risk', this)">🚨 داروهای پرخطر</span>
+            <span class="chip" onclick="filterCategory('antibiotic', this)">🦠 آنتی‌بیوتیک</span>
+            <span class="chip" onclick="filterCategory('cardio', this)">❤️ قلب و عروق</span>
+            <span class="chip" onclick="filterCategory('cns', this)">🧠 اعصاب و روان</span>
+            <span class="chip" onclick="filterCategory('pain', this)">💊 ضد درد و تب</span>
+            <span class="chip" onclick="filterCategory('anticoagulant', this)">🩸 ضد انعقاد</span>
+            <span class="chip" onclick="filterCategory('diabetes', this)">🍬 قند و دیابت</span>
+            <span class="chip" onclick="filterCategory('respiratory', this)">🫁 تنفسی و ریه</span>
+        </div>
+
         <div class="chat-input-bar">
-            <input type="text" id="drugInput" placeholder="جستجوی نام دارو..." onkeyup="if(event.key==='Enter') processDrugSearch()">
+            <input type="text" id="drugInput" placeholder="جستجوی نام فارسی، انگلیسی یا تجاری دارو..." oninput="onDrugInputChanged()" onkeydown="if(event.key==='Enter') processDrugSearch()">
             <input type="file" accept="image/*" id="drugGallery" style="display:none;" onchange="handleFile(event, 'drug')">
             <input type="file" accept="image/*" capture="environment" id="drugCamera" style="display:none;" onchange="handleFile(event, 'drug')">
             <button onclick="document.getElementById('drugGallery').click()" title="گالری">📁</button>
             <button onclick="document.getElementById('drugCamera').click()" title="دوربین">📷</button>
-            <button onclick="toggleVoice('drugInput')" id="mic-drugInput" title="ویس">🎤</button>
+            <button onclick="toggleVoice('drugInput')" id="mic-drugInput" title="تایپ صوتی">🎤</button>
             <button onclick="processDrugSearch()">جستجو</button>
         </div>
         <div id="drugMediaPreview" style="margin-top: 8px;"></div>
+
+        <!-- منوی پیشنهادات لحظه‌ای -->
+        <div id="drugSuggestions" class="suggestions-dropdown"></div>
+
+        <!-- نمایش نتایج جستجو و کارت جامع دارو -->
+        <div id="drugResult" style="margin-top: 15px;">
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem;">نام داروی مورد نظر را در بالا جستجو کنید یا یکی از دسته‌ها را انتخاب نمایید.</p>
+        </div>
     </div>
 
     <!-- بخش مشاوره با هوش مصنوعی -->
     <div id="tab-ai-consultation" class="section" style="display:none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(255, 255, 255, 0.05); padding-bottom: 8px; margin-bottom: 12px;">
-            <h2 style="margin: 0; border: none; padding: 0;">مشاوره با هوش مصنوعی</h2>
-            <div style="display: flex; gap: 6px; align-items: center;">
-                <span id="deepseekStatusBadge" class="badge" style="background: #1e3a5f; color: #38bdf8;">
-                    ⚪ وضعیت اتصال دیپ‌سیک
-                </span>
-                <button onclick="toggleDeepSeekConfig()" style="width: auto; padding: 5px 10px; font-size: 0.75rem; background: #334155; margin: 0;">
-                    ⚙️ تنظیمات
-                </button>
-            </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0; border: none; padding: 0;">مشاوره هوش مصنوعی</h2>
+            <div id="aiStatusBadge" class="status-badge checking">در حال ارزیابی اتصال...</div>
         </div>
 
-        <!-- کادر تنظیمات اتصال به DeepSeek AI -->
-        <div id="deepseekConfigBox" class="config-box" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="color: var(--accent-color); font-size: 0.95rem; margin: 0;">
-                    تنظیمات و تست اتصال DeepSeek
-                </h3>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">DeepSeek V3 / R1</span>
+        <details style="margin-top: 12px; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155;">
+            <summary>⚙️ تنظیمات دیپ‌سیک (کلید API و مدل)</summary>
+            <div style="margin-top: 8px;">
+                <label style="font-size: 0.8rem; color: var(--text-muted);">کلید API دیپ‌سیک (DeepSeek API Key):</label>
+                <input type="password" id="deepseekApiKey" placeholder="sk-..." style="font-family: monospace;">
+                
+                <label style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; display: block;">مدل هوش مصنوعی:</label>
+                <select id="deepseekModel">
+                    <option value="deepseek-chat">deepseek-chat (پیش‌فرض - سریع و دقیق)</option>
+                    <option value="deepseek-reasoner">deepseek-reasoner (استدلال عمیق دارویی)</option>
+                </select>
+
+                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                    <button onclick="saveDeepSeekConfig()" style="flex: 1;">ذخیره تنظیمات</button>
+                    <button onclick="testDeepSeekConnection()" style="flex: 1; background: #334155;">بررسی اتصال</button>
+                </div>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.5;">
-                برای برقراری اتصال آنلاین به هوش مصنوعی دیپ‌سیک، کلید API اختصاصی خود را وارد کنید یا در صورت نیاز از پروکسی سرور بدون فیلتر استفاده کنید:
-            </p>
-            
-            <label style="font-size: 0.75rem; color: var(--text-muted);">کلید اختصاصی دیپ‌سیک (DeepSeek API Key):</label>
-            <div style="display: flex; gap: 6px; margin: 4px 0 8px 0;">
-                <input type="password" id="deepseekApiKey" placeholder="sk-..." style="margin: 0; font-family: monospace;">
-                <button type="button" onclick="toggleKeyVisibility()" style="width: auto; padding: 6px 12px; margin: 0; background: #334155;">👁️</button>
-            </div>
-
-            <label style="font-size: 0.75rem; color: var(--text-muted);">آدرس اندپوئینت API یا پروکسی کلودفلر:</label>
-            <input type="text" id="deepseekEndpoint" placeholder="https://api.deepseek.com/chat/completions" value="https://api.deepseek.com/chat/completions" style="margin: 4px 0 8px 0; font-family: monospace; font-size: 0.8rem;" dir="ltr">
-
-            <label style="font-size: 0.75rem; color: var(--text-muted);">مدل هوش مصنوعی:</label>
-            <select id="deepseekModel" style="margin: 4px 0 10px 0;">
-                <option value="deepseek-chat">deepseek-chat (دیپ‌سیک V3 - پرسرعت و دقیق)</option>
-                <option value="deepseek-reasoner">deepseek-reasoner (دیپ‌سیک R1 - متفکر و استدلالی)</option>
-            </select>
-
-            <div style="display: flex; gap: 8px;">
-                <button onclick="saveDeepSeekConfig()" style="flex: 1; background: var(--success);">💾 ذخیره تنظیمات</button>
-                <button onclick="testDeepSeekConnection()" style="flex: 1; background: var(--accent-gradient);">⚡ تست اتصال زنده</button>
-            </div>
-            <div id="deepseekTestResult" style="margin-top: 10px; font-size: 0.8rem; line-height: 1.5;"></div>
-        </div>
-
-        <div id="aiResponse" style="background: #0f172a; padding: 14px; border-radius: 8px; border: 1px solid #334155; min-height: 70px; margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap;">
-            پاسخ هوش مصنوعی اینجا ظاهر می‌شود...
-        </div>
+        </details>
         
-        <div class="chat-input-bar">
-            <input type="text" id="aiInput" placeholder="پرسش دارویی خود را بنویسید..." onkeyup="if(event.key==='Enter') askAI()">
+        <div class="chat-input-bar" style="margin-bottom: 15px;">
+            <input type="text" id="aiInput" placeholder="پرسش دارویی، تداخل، عوارض یا شرایط بیمار..." onkeydown="if(event.key==='Enter') askAI()">
             <input type="file" accept="image/*" id="aiGallery" style="display:none;" onchange="handleFile(event, 'ai')">
             <input type="file" accept="image/*" capture="environment" id="aiCamera" style="display:none;" onchange="handleFile(event, 'ai')">
-            <button onclick="document.getElementById('aiGallery').click()" title="گالری">📁</button>
-            <button onclick="document.getElementById('aiCamera').click()" title="دوربین">📷</button>
-            <button onclick="toggleVoice('aiInput')" id="mic-aiInput" title="ویس">🎤</button>
+            <button onclick="document.getElementById('aiGallery').click()" title="ضمیمه عکس">📁</button>
+            <button onclick="document.getElementById('aiCamera').click()" title="عکس از دارو">📷</button>
+            <button onclick="toggleVoice('aiInput')" id="mic-aiInput" title="تایپ صوتی">🎤</button>
             <button onclick="askAI()" id="aiSendBtn">ارسال</button>
         </div>
         <div id="aiMediaPreview" style="margin-top: 8px;"></div>
+
+        <!-- کادر پاسخ هوش مصنوعی در پایین -->
+        <div id="aiResponse" style="background: #0f172a; padding: 14px; border-radius: 8px; border: 1px solid #334155; min-height: 80px; color: var(--text-main); font-size: 0.95rem; line-height: 1.7;"></div>
     </div>
 
     <!-- بخش آلارم -->
     <div id="tab-alarm" class="section" style="display:none;">
         <h2>تنظیم آلارم دارو</h2>
-        <input type="text" id="alarmDrugName" placeholder="نام دارو برای آلارم">
+        <input type="text" id="alarmDrugName" placeholder="نام دارو برای آلارم (مثلاً: متفورمین)">
         
-        <div class="clock-picker" style="margin-top: 10px;">
+        <div class="samsung-clock-picker" style="margin-top: 10px;">
             <!-- ساعت سمت چپ -->
-            <div class="clock-column">
-                <label style="font-size: 0.8rem; color: var(--text-muted);">ساعت</label>
-                <select id="alarmHour">
-                    <option value="00">۰۰</option><option value="01">۰۱</option><option value="02">۰۲</option><option value="03">۰۳</option><option value="04">۰۴</option><option value="05">۰۵</option><option value="06">۰۶</option><option value="07">۰۷</option><option value="08">۰۸</option><option value="09">۰۹</option><option value="10">۱۰</option><option value="11">۱۱</option><option value="12">۱۲</option><option value="13">۱۳</option><option value="14">۱۴</option><option value="15">۱۵</option><option value="16">۱۶</option><option value="17">۱۷</option><option value="18">۱۸</option><option value="19">۱۹</option><option value="20">۲۰</option><option value="21">۲۱</option><option value="22">۲۲</option><option value="23">۲۳</option>
-                </select>
+            <div class="wheel-container">
+                <label>ساعت (Hour)</label>
+                <div class="wheel-scroll" id="hourWheel"></div>
             </div>
-            <span style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color);">:</span>
+            <span style="font-size: 1.5rem; font-weight: bold; color: var(--accent-color); margin-top: 15px;">:</span>
             <!-- دقیقه سمت راست -->
-            <div class="clock-column">
-                <label style="font-size: 0.8rem; color: var(--text-muted);">دقیقه</label>
-                <select id="alarmMinute">
-                    <option value="00">۰۰</option><option value="10">۱۰</option><option value="15">۱۵</option><option value="20">۲۰</option><option value="30">۳۰</option><option value="45">۴۵</option><option value="50">۵۰</option>
-                </select>
+            <div class="wheel-container">
+                <label>دقیقه (Minute)</label>
+                <div class="wheel-scroll" id="minuteWheel"></div>
             </div>
         </div>
         <button onclick="saveDrugAlarm()" style="margin-top: 15px; width: 100%;">ثبت آلارم</button>
@@ -357,7 +440,7 @@
         <hr style="border-color: #334155; margin: 20px 0;">
         <h2>مدیریت حساسیتهای دارویی</h2>
         <div class="chat-input-bar">
-            <input type="text" id="allergyInput" placeholder="نام داروی حساسیتزا...">
+            <input type="text" id="allergyInput" placeholder="نام داروی حساسیتزا (مثلاً: پنی‌سیلین، آسپرین)..." onkeydown="if(event.key==='Enter') addAllergy()">
             <button onclick="addAllergy()">افزودن</button>
         </div>
         <div id="allergyList" style="margin-top: 10px;"></div>
@@ -365,17 +448,9 @@
 
     <!-- بخش عیبیابی دقیق -->
     <div id="tab-debug" class="section" style="display:none;">
-        <h2>بخش عیب‌یابی دقیق</h2>
-        <p class="text-xs text-slate-400 mb-2">رصد اتصال به دیپ‌سیک، رویدادها و خطاهای سیستمی:</p>
-        <div style="display: flex; gap: 8px; margin-bottom: 10px;">
-            <button onclick="testDeepSeekConnection()" style="background: var(--accent-gradient); font-size: 0.8rem; padding: 8px; flex: 1;">
-                🔍 تست زنده اتصال به دیپ‌سیک
-            </button>
-            <button onclick="clearDebugLogs()" style="background: #334155; font-size: 0.8rem; padding: 8px; width: auto;">
-                پاکسازی لاگ‌ها
-            </button>
-        </div>
+        <h2>بخش عیبیابی و لاگ سیستم</h2>
         <div id="debug-box">سیستم پایدار است و هیچ خطایی ثبت نشده.</div>
+        <button onclick="clearDebugLogs()" style="background: #334155; margin-top: 10px; width: 100%;">پاکسازی خطاها</button>
     </div>
 
     <!-- نوار ناوبری پایین -->
@@ -384,353 +459,625 @@
         <button onclick="showTab('ai-consultation')" id="btn-ai-consultation">🤖 مشاوره</button>
         <button onclick="showTab('alarm')" id="btn-alarm">⏰ آلارم</button>
         <button onclick="showTab('history')" id="btn-history">📋 تاریخچه</button>
-        <button onclick="showTab('debug')" id="btn-debug">🛠 عیب‌یابی</button>
+        <button onclick="showTab('debug')" id="btn-debug">🛠 عیبیابی</button>
     </div>
 
 <script>
-    // سیستم عیب‌یابی و ثبت خطاها
+    // متغیر سراسری نگهداری لیست داروها
+    let allMedications = [];
+
     window.onerror = function(msg, url, line, col, error) {
-        logToDebug(`[خطای سیستمی]: ${msg} (خط ${line})`);
+        logDebug(`[خطای سیستمی]: ${msg} (خط ${line})`);
         return false;
     };
 
-    window.addEventListener('unhandledrejection', function(event) {
-        logToDebug(`[خطای نامتقارن]: ${event.reason}`);
-    });
-
-    function logToDebug(msg) {
+    function logDebug(message) {
         const debugBox = document.getElementById('debug-box');
-        if (debugBox) {
-            if (debugBox.innerText.includes('سیستم پایدار است')) debugBox.innerText = '';
-            const now = new Date().toLocaleTimeString('fa-IR');
-            debugBox.innerText += `[${now}] ${msg}\n`;
-        }
+        if (!debugBox) return;
+        const time = new Date().toLocaleTimeString('fa-IR');
+        if(debugBox.innerText.includes('سیستم پایدار است')) debugBox.innerText = '';
+        debugBox.innerText += `[${time}] ${message}\n`;
+        debugBox.scrollTop = debugBox.scrollHeight;
     }
 
     function clearDebugLogs() {
-        document.getElementById('debug-box').innerText = 'سیستم پایدار است و هیچ خطایی ثبت نشده.';
+        const debugBox = document.getElementById('debug-box');
+        if (debugBox) {
+            debugBox.innerText = 'سیستم پایدار است و هیچ خطایی ثبت نشده.';
+        }
     }
 
     function showTab(tabName) {
         document.querySelectorAll('.section').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.nav-bar button').forEach(btn => btn.classList.remove('active'));
-        document.getElementById('tab-' + tabName).style.display = 'block';
-        document.getElementById('btn-' + tabName).classList.add('active');
-    }
+        const targetSection = document.getElementById('tab-' + tabName);
+        const targetBtn = document.getElementById('btn-' + tabName);
+        if (targetSection) targetSection.style.display = 'block';
+        if (targetBtn) targetBtn.classList.add('active');
 
-    // تنظیمات دیپ‌سیک
-    function toggleDeepSeekConfig() {
-        const box = document.getElementById('deepseekConfigBox');
-        if (box) {
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        if (tabName === 'ai-consultation') {
+            checkDeepSeekStatus();
         }
     }
 
-    function toggleKeyVisibility() {
-        const keyInput = document.getElementById('deepseekApiKey');
-        if (keyInput) {
-            keyInput.type = keyInput.type === 'password' ? 'text' : 'password';
-        }
-    }
-
-    function saveDeepSeekConfig() {
-        const key = document.getElementById('deepseekApiKey').value.trim();
-        const endpoint = document.getElementById('deepseekEndpoint').value.trim();
-        const model = document.getElementById('deepseekModel').value;
-
-        localStorage.setItem('deepseek_api_key', key);
-        localStorage.setItem('deepseek_endpoint', endpoint || 'https://api.deepseek.com/chat/completions');
-        localStorage.setItem('deepseek_model', model || 'deepseek-chat');
-
-        updateDeepSeekBadge();
-        logToDebug("تنظیمات دیپ‌سیک در حافظه محلی ذخیره شد.");
-        alert("تنظیمات با موفقیت ذخیره شد.");
-    }
-
-    function loadDeepSeekConfig() {
-        const savedKey = localStorage.getItem('deepseek_api_key') || '';
-        const savedEndpoint = localStorage.getItem('deepseek_endpoint') || 'https://api.deepseek.com/chat/completions';
-        const savedModel = localStorage.getItem('deepseek_model') || 'deepseek-chat';
-
-        if (document.getElementById('deepseekApiKey')) document.getElementById('deepseekApiKey').value = savedKey;
-        if (document.getElementById('deepseekEndpoint')) document.getElementById('deepseekEndpoint').value = savedEndpoint;
-        if (document.getElementById('deepseekModel')) document.getElementById('deepseekModel').value = savedModel;
-
-        updateDeepSeekBadge();
-    }
-
-    function updateDeepSeekBadge() {
-        const badge = document.getElementById('deepseekStatusBadge');
-        if (!badge) return;
-        const key = localStorage.getItem('deepseek_api_key') || '';
-        if (key) {
-            badge.style.background = '#064e3b';
-            badge.style.color = '#34d399';
-            badge.innerText = '🟢 دیپ‌سیک: کلید تنظیم شده';
-        } else {
-            badge.style.background = '#3b250c';
-            badge.style.color = '#fbbf24';
-            badge.innerText = '🟡 دیپ‌سیک: نیازمند کلید API';
-        }
-    }
-
-    // تست برقراری ارتباط زنده با سرور دیپ‌سیک
-    async function testDeepSeekConnection() {
-        const key = document.getElementById('deepseekApiKey').value.trim() || localStorage.getItem('deepseek_api_key') || '';
-        const endpoint = document.getElementById('deepseekEndpoint').value.trim() || localStorage.getItem('deepseek_endpoint') || 'https://api.deepseek.com/chat/completions';
-        const model = document.getElementById('deepseekModel')?.value || localStorage.getItem('deepseek_model') || 'deepseek-chat';
-        const resultEl = document.getElementById('deepseekTestResult');
-        const badge = document.getElementById('deepseekStatusBadge');
-
-        // اطمینان از باز بودن کادر تنظیمات برای مشاهده نتیجه تست در صورت حضور در تب مشاوره
-        const configBox = document.getElementById('deepseekConfigBox');
-        if (configBox && document.getElementById('tab-ai-consultation').style.display !== 'none') {
-            configBox.style.display = 'block';
-        }
-
-        if (resultEl) resultEl.innerHTML = '<span style="color:var(--accent-color);">در حال ارسال درخواست تست ارتباط به دیپ‌سیک... ⏳</span>';
-        logToDebug(`[شروع تست]: ارسال پینگ به دیپ‌سیک در ${endpoint}...`);
-
-        if (!key) {
-            const warningMsg = 'کلید API دیپ‌سیک وارد نشده است. لطفاً کلید معتبر خود را از پنل DeepSeek وارد کرده و ذخیره کنید.';
-            if (resultEl) resultEl.innerHTML = `<span style="color:var(--danger);">⚠️ ${warningMsg}</span>`;
-            if (badge) {
-                badge.style.background = '#3b250c';
-                badge.style.color = '#fbbf24';
-                badge.innerText = '🟡 بدون کلید API';
-            }
-            logToDebug(`[نتیجه تست دیپ‌سیک]: ${warningMsg}`);
-            alert(warningMsg);
-            return false;
-        }
-
+    // بارگذاری پایگاه داده جامع ۶۸۴ داروی کتاب مرجع
+    async function initMedicationsDatabase() {
         try {
-            const startTime = Date.now();
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${key}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [{ role: 'user', content: 'سلام، تست برقراری ارتباط' }],
-                    max_tokens: 15
-                })
-            });
+            if (window.ALL_DRUGS_DATA && window.ALL_DRUGS_DATA.drugs && window.ALL_DRUGS_DATA.drugs.length > 0) {
+                allMedications = window.ALL_DRUGS_DATA.drugs;
+                onMedicationsLoaded();
+                return;
+            }
 
-            const elapsed = Date.now() - startTime;
-
-            if (response.ok) {
-                const data = await response.json();
-                const reply = data.choices?.[0]?.message?.content || 'اتصال موفق';
-                if (resultEl) resultEl.innerHTML = `<span style="color:var(--success);">✅ اتصال به هوش مصنوعی دیپ‌سیک موفقیت‌آمیز است! (زمان پاسخ: ${elapsed} میلی‌ثانیه | مدل: ${model})<br><small>پاسخ سرور: "${reply.trim()}"</small></span>`;
-                if (badge) {
-                    badge.style.background = '#064e3b';
-                    badge.style.color = '#34d399';
-                    badge.innerText = '🟢 دیپ‌سیک: متصل و فعال';
-                }
-                logToDebug(`[تست دیپ‌سیک]: موفقیت‌آمیز (کد HTTP 200) در ${elapsed}ms`);
-                return true;
+            // تلاش برای واکشی فایلی در صورت نیاز
+            const res = await fetch('all_medications.json');
+            if (res.ok) {
+                const data = await res.json();
+                allMedications = data.drugs || [];
+                onMedicationsLoaded();
             } else {
-                let errText = await response.text();
-                let errMsg = errText;
-                try {
-                    const parsed = JSON.parse(errText);
-                    errMsg = parsed.error?.message || errText;
-                } catch(e) {}
-
-                let tip = '';
-                if (response.status === 401) tip = 'کلید API وارد شده نامعتبر است یا لغو شده است.';
-                else if (response.status === 402) tip = 'اعتبار حساب کاربری دیپ‌سیک شما به اتمام رسیده است (Insufficient Balance).';
-                else if (response.status === 429) tip = 'محدودیت تعداد درخواست در دقیقه (Rate Limit) رخ داده است.';
-
-                if (resultEl) resultEl.innerHTML = `<span style="color:var(--danger);">❌ خطا در برقراری ارتباط با دیپ‌سیک (کد ${response.status}): ${errMsg}<br><small>${tip}</small></span>`;
-                if (badge) {
-                    badge.style.background = '#7f1d1d';
-                    badge.style.color = '#fca5a5';
-                    badge.innerText = `🔴 دیپ‌سیک: خطای ${response.status}`;
-                }
-                logToDebug(`[خطای تست دیپ‌سیک]: وضعیت ${response.status} - ${errMsg}`);
-                return false;
+                throw new Error("پاسخ نامعتبر سرور برای فایل دارو");
             }
-        } catch (error) {
-            const errStr = error.message || 'خطای شبکه';
-            if (resultEl) resultEl.innerHTML = `<span style="color:var(--danger);">❌ عدم امکان اتصال به سرور دیپ‌سیک: ${errStr}<br><small>نکته: در مرورگر ممکن است به دلیل محدودیت‌های CORS نیاز به آدرس پروکسی ورکر کلودفلر داشته باشید.</small></span>`;
-            if (badge) {
-                badge.style.background = '#7f1d1d';
-                badge.style.color = '#fca5a5';
-                badge.innerText = '🔴 خطای شبکه/پروکسی';
+        } catch (err) {
+            logDebug(`خطا در واکشی فایل دارو: ${err.message}. بارگذاری جایگزین...`);
+            // در صورت بروز خطا اگر هنوز خالی است
+            if (allMedications.length === 0 && window.ALL_DRUGS_DATA) {
+                allMedications = window.ALL_DRUGS_DATA.drugs || [];
             }
-            logToDebug(`[خطای شبکه دیپ‌سیک]: ${errStr}`);
-            return false;
+            onMedicationsLoaded();
         }
     }
 
-    // بانک داده‌های دارویی محلی و آفلاین
-    const drugDatabase = {
-        "استامینوفن": "مسکن و ضد تب بسیار رایج. دوز معمول بزرگسالان: ۵۰۰ تا ۱۰۰۰ میلی‌گرم هر ۴ تا ۶ ساعت (حداکثر ۴ گرم در ۲۴ ساعت). تداخل اصلی با الکل و داروهای هپاتوتوکسیک.",
-        "آموکسیسیلین": "آنتی‌بیوتیک از خانواده پنی‌سیلین‌ها جهت درمان عفونت‌های باکتریایی تنفسی و ادراری. باید دوره درمان طبق دستور پزشک کامل شود حتی در صورت بهبود علائم.",
-        "ایبوپروفن": "داروی ضدالتهاب غیراستروئیدی (NSAID) جهت کاهش درد، التهاب و تب. حتماً پس از غذا و با یک لیوان پر آب مصرف شود تا از تحریک معده جلوگیری شود.",
-        "امپرازول": "مهارکننده پمپ پروتون جهت کاهش اسید معده، درمان رفلاکس و زخم‌های گوارشی. بهترین زمان مصرف صبح ناشتا نیم ساعت پیش از صبحانه است.",
-        "متفورمین": "داروی خط اول کنترل دیابت نوع ۲. به منظور کاهش عوارض گوارشی همراه یا بلافاصله پس از وعده‌های اصلی غذایی مصرف می‌شود.",
-        "آتورواستاتین": "داروی کاهنده کلسترول خون و محافظ قلب و عروق. معمولاً یک‌بار در شبانه‌روز مصرف می‌شود.",
-        "لوزارتان": "داروی کنترل پرفشاری خون از دسته ARB. فشار خون و سطح پتاسیم باید پایش شوند.",
-        "دیفن هیدرامین": "آنتی‌هیستامین نسل اول با خاصیت آرام‌بخش و ضد سرفه. به دلیل ایجاد خواب‌آلودگی از رانندگی پس از مصرف خودداری شود."
-    };
-
-    function getOfflineDrugAdvice(query) {
-        const matchedKey = Object.keys(drugDatabase).find(k => query.includes(k) || k.includes(query));
-        if (matchedKey) {
-            return `<b>اطلاعات داروی ${matchedKey}:</b> ${drugDatabase[matchedKey]}<br><small style="color:var(--accent-color);">مصرف هرگونه دارو باید منحصراً تحت نظر پزشک معالج باشد.</small>`;
+    function onMedicationsLoaded() {
+        const count = allMedications.length;
+        const badge = document.getElementById('drugCountBadge');
+        if (badge) {
+            badge.innerText = `بانک فعال: ${count} دارو`;
         }
-        return "اطلاعات جامع این دارو نیازمند بررسی تخصصی است. لطفاً کلید هوش مصنوعی دیپ‌سیک را در تنظیمات وارد کنید یا نام دقیق ژنریک دارو را جستجو فرمایید.";
+        logDebug(`بانک اطلاعاتی شامل ${count} داروی تخصصی با موفقیت لود گردید.`);
     }
 
+    // پیش‌نمایش پیشنهادهای لحظه‌ای هنگام تایپ (Auto-Complete)
+    function onDrugInputChanged() {
+        const inputVal = document.getElementById('drugInput').value.trim();
+        const dropEl = document.getElementById('drugSuggestions');
+        if (!inputVal || inputVal.length < 2) {
+            dropEl.style.display = 'none';
+            return;
+        }
+
+        const query = inputVal.toLowerCase();
+        const matches = allMedications.filter(d => 
+            (d.drug_name && d.drug_name.toLowerCase().includes(query)) ||
+            (d.generic_name_en && d.generic_name_en.toLowerCase().includes(query)) ||
+            (d.trade_names && d.trade_names.toLowerCase().includes(query))
+        ).slice(0, 8);
+
+        if (matches.length === 0) {
+            dropEl.style.display = 'none';
+            return;
+        }
+
+        dropEl.innerHTML = matches.map(d => `
+            <div class="suggestion-item" onclick="selectDrugFromSuggestion('${escapeHtml(d.drug_name)}')">
+                <div>
+                    <b>${d.drug_name}</b>
+                    <small style="color:var(--text-muted); display:block;">${d.generic_name_en || ''}</small>
+                </div>
+                <div>
+                    ${d.is_high_risk ? '<span class="badge badge-danger">🚨 پرخطر</span>' : ''}
+                    ${d.pregnancy_category ? `<span class="badge badge-warning">بارداری: ${d.pregnancy_category}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+        dropEl.style.display = 'block';
+    }
+
+    function selectDrugFromSuggestion(drugName) {
+        document.getElementById('drugInput').value = drugName;
+        document.getElementById('drugSuggestions').style.display = 'none';
+        processDrugSearch();
+    }
+
+    // فیلتر دسته‌بندی سریع
+    function filterCategory(cat, chipEl) {
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        if (chipEl) chipEl.classList.add('active');
+
+        const resDiv = document.getElementById('drugResult');
+        let filtered = [];
+
+        if (cat === 'all') {
+            filtered = allMedications.slice(0, 25);
+        } else if (cat === 'high_risk') {
+            filtered = allMedications.filter(d => d.is_high_risk);
+        } else if (cat === 'antibiotic') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && d.therapeutic_class.includes('آنتی‌بیوتیک')) || (d.pharm_class && d.pharm_class.includes('آنتی‌بیوتیک')));
+        } else if (cat === 'cardio') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('قلب') || d.therapeutic_class.includes('فشار') || d.therapeutic_class.includes('آریتمی'))));
+        } else if (cat === 'cns') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('افسردگی') || d.therapeutic_class.includes('سایکوز') || d.therapeutic_class.includes('تشنج') || d.therapeutic_class.includes('اضطراب') || d.therapeutic_class.includes('پارکینسون'))));
+        } else if (cat === 'pain') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('درد') || d.therapeutic_class.includes('تب') || d.therapeutic_class.includes('التهاب'))));
+        } else if (cat === 'anticoagulant') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('انعقاد') || d.therapeutic_class.includes('ترومبو'))));
+        } else if (cat === 'diabetes') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('دیابت') || d.therapeutic_class.includes('انسولین'))));
+        } else if (cat === 'respiratory') {
+            filtered = allMedications.filter(d => (d.therapeutic_class && (d.therapeutic_class.includes('آسم') || d.therapeutic_class.includes('برونش') || d.therapeutic_class.includes('سرفه') || d.therapeutic_class.includes('احتقان'))));
+        }
+
+        renderDrugList(filtered, `فهرست انتخابی (${filtered.length} مورد)`);
+    }
+
+    function renderDrugList(list, title) {
+        const resDiv = document.getElementById('drugResult');
+        if (list.length === 0) {
+            resDiv.innerHTML = `<p style="color:var(--text-muted); text-align:center;">موردی در این دسته یافت نشد.</p>`;
+            return;
+        }
+
+        resDiv.innerHTML = `
+            <div style="font-weight:bold; color:var(--accent-color); margin-bottom:10px;">${title}:</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                ${list.map(d => `
+                    <div class="list-item" style="cursor:pointer;" onclick="renderSingleDrugCard('${escapeHtml(d.drug_name)}')">
+                        <div>
+                            <b>💊 ${d.drug_name}</b>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${d.generic_name_en || ''} ${d.trade_names ? `(${d.trade_names})` : ''}</div>
+                        </div>
+                        <div>
+                            ${d.is_high_risk ? '<span class="badge badge-danger">پرخطر</span>' : ''}
+                            <button style="padding:4px 8px; font-size:0.75rem;">مشاهده کامل ❯</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    }
+
+    // جستجوی داروها در کل بانک داده ۶۸۴ تایی
     function processDrugSearch() {
-        const query = document.getElementById('drugInput').value.trim();
+        document.getElementById('drugSuggestions').style.display = 'none';
+        const inputEl = document.getElementById('drugInput');
+        const query = inputEl.value.trim();
         const resDiv = document.getElementById('drugResult');
         if(!query) return;
 
-        const matchedKey = Object.keys(drugDatabase).find(k => query.includes(k) || k.includes(query));
+        logDebug(`جستجوی هوشمند در ۶۸۴ دارو برای: ${query}`);
 
-        if(matchedKey) {
-            resDiv.innerHTML = `
-                <b style="color:var(--accent-color);">${matchedKey}:</b> ${drugDatabase[matchedKey]} <br>
-                <div style="display:flex; gap:8px; margin-top:10px;">
-                    <button onclick="finishMedication('${matchedKey}')" style="background:var(--success); margin:0;" class="text-xs">ثبت مصرف در تاریخچه</button>
-                    <button onclick="switchToAI('${matchedKey}')" style="background:#334155; margin:0;" class="text-xs">پرسش جزئیات از دیپ‌سیک</button>
+        // بررسی حساسیت دارویی بیمار
+        const allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
+        const matchedAllergy = allergies.find(a => query.toLowerCase().includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(query.toLowerCase()));
+
+        let allergyWarning = '';
+        if (matchedAllergy) {
+            allergyWarning = `<div style="background:rgba(244,63,94,0.25); border:1px solid var(--danger); padding:10px; border-radius:8px; margin-bottom:12px; color:var(--danger); font-weight:bold;">⚠️ هشدار خطر جدی: داروی «${query}» در فهرست حساسیت‌های ثبت‌شده شما تطابق دارد (${matchedAllergy.name})!</div>`;
+        }
+
+        const q = query.toLowerCase();
+
+        // 1. جستجوی دقیق نام
+        let exactMatch = allMedications.find(d => 
+            (d.drug_name && d.drug_name.toLowerCase() === q) || 
+            (d.generic_name_en && d.generic_name_en.toLowerCase() === q)
+        );
+
+        if (exactMatch) {
+            resDiv.innerHTML = allergyWarning + renderDrugCardHtml(exactMatch);
+            return;
+        }
+
+        // 2. جستجوی زیررشته‌ای در نام یا اسامی تجاری
+        let matches = allMedications.filter(d => 
+            (d.drug_name && d.drug_name.toLowerCase().includes(q)) ||
+            (d.generic_name_en && d.generic_name_en.toLowerCase().includes(q)) ||
+            (d.trade_names && d.trade_names.toLowerCase().includes(q))
+        );
+
+        // 3. اگر یافت نشد، جستجو در موارد مصرف، دسته درمانی یا عوارض
+        if (matches.length === 0) {
+            matches = allMedications.filter(d => 
+                (d.therapeutic_class && d.therapeutic_class.toLowerCase().includes(q)) ||
+                (d.pharm_class && d.pharm_class.toLowerCase().includes(q)) ||
+                (d.indications && d.indications.toLowerCase().includes(q))
+            );
+        }
+
+        if (matches.length === 1) {
+            resDiv.innerHTML = allergyWarning + renderDrugCardHtml(matches[0]);
+        } else if (matches.length > 1) {
+            resDiv.innerHTML = allergyWarning + `
+                <div style="font-weight:bold; color:var(--accent-color); margin-bottom:8px;">${matches.length} داروی منطبق پیدا شد. لطفاً داروی مورد نظر را انتخاب فرمایید:</div>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${matches.map(d => `
+                        <div class="list-item" style="cursor:pointer;" onclick="renderSingleDrugCard('${escapeHtml(d.drug_name)}')">
+                            <div>
+                                <b>💊 ${d.drug_name}</b>
+                                <div style="font-size:0.8rem; color:var(--text-muted);">${d.generic_name_en || ''} ${d.trade_names ? `[برند: ${d.trade_names}]` : ''}</div>
+                                <div style="font-size:0.75rem; color:var(--accent-color);">${d.therapeutic_class || ''}</div>
+                            </div>
+                            <div>
+                                ${d.is_high_risk ? '<span class="badge badge-danger">پرخطر</span>' : ''}
+                                <button style="padding:4px 8px; font-size:0.75rem;">انتخاب ❯</button>
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
             `;
         } else {
-            resDiv.innerHTML = `
-                <span style="color:var(--danger);">یافت نشد.</span> داروی «${query}» در بانک داده‌های پایه آفلاین نیست. 
-                <button onclick="switchToAI('${query}')" style="margin-top:8px;">مشاوره و تحلیل کامل با هوش مصنوعی دیپ‌سیک</button>
+            resDiv.innerHTML = allergyWarning + `
+                <div style="background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">
+                    <span style="color:var(--danger); font-weight:bold;">موردی با نام «${query}» در پایگاه داده ۶۸۴ داروی کتاب مرجع یافت نشد.</span>
+                    <p style="margin:8px 0; color:var(--text-muted);">می‌توانید همین سوال را مستقیماً از هوش مصنوعی DeepSeek بپرسید:</p>
+                    <button onclick="switchToAI('${escapeHtml(query)}')" style="margin-top:6px;">🤖 استعلام تخصصی از DeepSeek AI</button>
+                </div>
             `;
+        }
+    }
+
+    function renderSingleDrugCard(drugName) {
+        const drug = allMedications.find(d => d.drug_name === drugName);
+        if (drug) {
+            document.getElementById('drugResult').innerHTML = renderDrugCardHtml(drug);
+        }
+    }
+
+    // تولید کد HTML غنی و کامل کارت دارویی
+    function renderDrugCardHtml(d) {
+        const pregCat = d.pregnancy_category || '-';
+        let pregBadgeClass = 'badge-info';
+        if (pregCat.includes('A')) pregBadgeClass = 'badge-success';
+        else if (pregCat.includes('B')) pregBadgeClass = 'badge-info';
+        else if (pregCat.includes('C')) pregBadgeClass = 'badge-warning';
+        else if (pregCat.includes('D') || pregCat.includes('X')) pregBadgeClass = 'badge-danger';
+
+        return `
+            <div class="drug-detail-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1px solid #334155; padding-bottom:10px; margin-bottom:12px;">
+                    <div>
+                        <h3 style="margin:0; color:var(--accent-color); font-size:1.2rem;">💊 ${d.drug_name}</h3>
+                        <div style="font-size:0.85rem; color:var(--text-muted); font-family:monospace; margin-top:2px;">${d.generic_name_en || ''}</div>
+                    </div>
+                    <div>
+                        ${d.is_high_risk ? '<span class="badge badge-danger">🚨 داروی پرخطر</span>' : ''}
+                        <span class="badge ${pregBadgeClass}">بارداری: ${pregCat}</span>
+                    </div>
+                </div>
+
+                ${d.trade_names ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">🏷️ اسامی تجاری (Trade Names):</span>
+                        <span>${d.trade_names}</span>
+                    </div>
+                ` : ''}
+
+                ${d.therapeutic_class || d.pharm_class ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">🩺 دسته‌بندی دارویی و درمانی:</span>
+                        <span>${[d.pharm_class, d.therapeutic_class].filter(Boolean).join(' | ')}</span>
+                    </div>
+                ` : ''}
+
+                ${d.available_forms ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">📦 اشکال دارویی موجود:</span>
+                        <span>${d.available_forms}</span>
+                    </div>
+                ` : ''}
+
+                ${d.adult_dose_display ? `
+                    <div class="drug-field" style="background:#1e293b; padding:10px; border-radius:8px; border-right:3px solid var(--accent-color);">
+                        <span class="drug-field-label">⚖️ دوز و نحوه مصرف (بالغین و کودکان):</span>
+                        <div style="color:#e2e8f0; font-size:0.9rem;">${d.adult_dose_display}</div>
+                    </div>
+                ` : ''}
+
+                ${d.indications ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">🎯 موارد مصرف (Indications):</span>
+                        <span>${d.indications}</span>
+                    </div>
+                ` : ''}
+
+                ${d.contraindications ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label" style="color:var(--danger);">⛔ موارد منع مصرف (Contraindications):</span>
+                        <span style="color:#fca5a5;">${d.contraindications}</span>
+                    </div>
+                ` : ''}
+
+                ${d.side_effects ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label" style="color:var(--warning);">⚠️ عوارض جانبی (Side Effects):</span>
+                        <span>${d.side_effects}</span>
+                    </div>
+                ` : ''}
+
+                ${d.precautions ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">🛡️ احتیاطات مصرف:</span>
+                        <span>${d.precautions}</span>
+                    </div>
+                ` : ''}
+
+                ${d.antidote && d.antidote !== 'ندارد' && d.antidote !== '-' ? `
+                    <div class="drug-field" style="background:rgba(16,185,129,0.15); padding:8px; border-radius:6px; border:1px solid var(--success);">
+                        <span class="drug-field-label" style="color:var(--success);">🧪 پادزهر و آنتی‌دوت (Antidote):</span>
+                        <span>${d.antidote}</span>
+                    </div>
+                ` : ''}
+
+                ${d.drug_interactions && d.drug_interactions !== '-' ? `
+                    <div class="drug-field">
+                        <span class="drug-field-label">🔄 تداخلات دارویی مهم:</span>
+                        <span>${d.drug_interactions}</span>
+                    </div>
+                ` : ''}
+
+                ${d.nursing_considerations ? `
+                    <div class="drug-field" style="background:rgba(139,92,246,0.15); padding:10px; border-radius:8px; border:1px solid var(--purple);">
+                        <span class="drug-field-label" style="color:var(--purple);">👩‍⚕️ ملاحظات پرستاری و نکات بالینی:</span>
+                        <span>${d.nursing_considerations}</span>
+                    </div>
+                ` : ''}
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px; border-top:1px solid #334155; padding-top:12px;">
+                    <button onclick="quickSetAlarm('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:#334155;">⏰ تنظیم آلارم دارو</button>
+                    <button onclick="finishMedication('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:var(--success);">✓ ثبت در تاریخچه مصرف</button>
+                    <button onclick="switchToAI('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem;">🤖 مشاوره تخصصی هوش مصنوعی</button>
+                    <button onclick="quickAddAllergy('${escapeHtml(d.drug_name)}')" style="font-size:0.8rem; background:var(--danger);">⚠️ ثبت در حساسیت‌ها</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    function quickSetAlarm(drugName) {
+        showTab('alarm');
+        document.getElementById('alarmDrugName').value = drugName;
+    }
+
+    function quickAddAllergy(drugName) {
+        let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
+        if (!allergies.some(a => a.name === drugName)) {
+            allergies.push({ id: Date.now(), name: drugName });
+            localStorage.setItem('drugAllergies', JSON.stringify(allergies));
+            loadHistory();
+            alert(`داروی «${drugName}» با موفقیت به فهرست حساسیت‌های شما افزوده شد.`);
+            logDebug(`حساسیت دارویی ثبت شد: ${drugName}`);
+        } else {
+            alert(`این دارو قبلاً در لیست حساسیت‌های شما ثبت شده است.`);
         }
     }
 
     function switchToAI(drugName) {
         showTab('ai-consultation');
-        document.getElementById('aiInput').value = "اطلاعات تخصصی، دوز، نحوه مصرف و تداخلات داروی " + drugName;
+        const aiInput = document.getElementById('aiInput');
+        if (aiInput) {
+            aiInput.value = "درباره موارد مصرف، دوز استاندارد، تداخلات و عوارض جانبی داروی " + drugName + " به زبان ساده و فارسی توضیح دهید.";
+        }
         askAI();
     }
 
-    // ارسال پرسش و مشاوره با هوش مصنوعی دیپ‌سیک
-    async function askAI() {
-        const inputEl = document.getElementById('aiInput');
-        const text = inputEl.value.trim();
-        if(!text) {
-            alert('لطفاً پرسش یا نام داروی مورد نظر را وارد کنید.');
+    // ساخت غلتک ساعت و دقیقه چرخشی سامسونگ
+    function initClockWheels() {
+        const hourWheel = document.getElementById('hourWheel');
+        const minuteWheel = document.getElementById('minuteWheel');
+        if (!hourWheel || !minuteWheel) return;
+        
+        hourWheel.innerHTML = '';
+        minuteWheel.innerHTML = '';
+
+        for (let i = 0; i < 24; i++) {
+            const val = i < 10 ? '0' + i : i;
+            hourWheel.innerHTML += `<div class="wheel-item" data-val="${val}">${val}</div>`;
+        }
+
+        for (let i = 0; i < 60; i += 5) {
+            const val = i < 10 ? '0' + i : i;
+            minuteWheel.innerHTML += `<div class="wheel-item" data-val="${val}">${val}</div>`;
+        }
+
+        const now = new Date();
+        const curHour = now.getHours();
+        const curMin = Math.round(now.getMinutes() / 5) * 5;
+        hourWheel.scrollTop = curHour * 50;
+        minuteWheel.scrollTop = (curMin / 5) * 50;
+    }
+
+    function getSelectedTime() {
+        const hourWheel = document.getElementById('hourWheel');
+        const minuteWheel = document.getElementById('minuteWheel');
+        
+        const hourIndex = Math.max(0, Math.min(23, Math.round(hourWheel.scrollTop / 50)));
+        const minutesCount = 12;
+        const minuteIndex = Math.max(0, Math.min(minutesCount - 1, Math.round(minuteWheel.scrollTop / 50)));
+
+        const hours = hourWheel.querySelectorAll('.wheel-item');
+        const minutes = minuteWheel.querySelectorAll('.wheel-item');
+
+        const selectedHour = hours[hourIndex] ? hours[hourIndex].dataset.val : '08';
+        const selectedMinute = minutes[minuteIndex] ? minutes[minuteIndex].dataset.val : '00';
+
+        return { hour: selectedHour, minute: selectedMinute };
+    }
+
+    // تنظیمات و ارتباط با دیپ‌سیک
+    function saveDeepSeekConfig() {
+        const apiKey = document.getElementById('deepseekApiKey').value.trim();
+        const model = document.getElementById('deepseekModel').value;
+        if(apiKey) localStorage.setItem('ds_api_key', apiKey);
+        if(model) localStorage.setItem('ds_model', model);
+        alert('تنظیمات دیپ‌سیک ذخیره شد.');
+        logDebug('تنظیمات DeepSeek به‌روزرسانی شد.');
+        checkDeepSeekStatus();
+    }
+
+    function loadDeepSeekConfig() {
+        const savedKey = localStorage.getItem('ds_api_key') || '';
+        const savedModel = localStorage.getItem('ds_model') || 'deepseek-chat';
+        const keyInput = document.getElementById('deepseekApiKey');
+        const modelSelect = document.getElementById('deepseekModel');
+        if(keyInput && savedKey) keyInput.value = savedKey;
+        if(modelSelect) modelSelect.value = savedModel;
+    }
+
+    async function checkDeepSeekStatus() {
+        const badge = document.getElementById('aiStatusBadge');
+        if(!badge) return;
+        const apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('deepseekApiKey') ? document.getElementById('deepseekApiKey').value.trim() : '');
+
+        if (!apiKey) {
+            badge.className = 'status-badge offline';
+            badge.innerHTML = '● دیپ‌سیک: حالت دانشنامه آفلاین (۶۸۴ دارو)';
             return;
         }
 
-        const respDiv = document.getElementById('aiResponse');
-        const sendBtn = document.getElementById('aiSendBtn');
-        const key = localStorage.getItem('deepseek_api_key') || '';
-        const endpoint = localStorage.getItem('deepseek_endpoint') || 'https://api.deepseek.com/chat/completions';
-        const model = localStorage.getItem('deepseek_model') || 'deepseek-chat';
-
-        if (!key) {
-            respDiv.innerHTML = `
-                <div style="border-right: 3px solid #fbbf24; padding-right: 12px;">
-                    <b style="color: #fbbf24;">⚠️ کلید اتصال به هوش مصنوعی دیپ‌سیک تنظیم نشده است:</b>
-                    <p style="margin: 6px 0; font-size: 0.85rem; color: var(--text-main);">
-                        برای دریافت پاسخ‌های لحظه‌ای، تخصصی و تعاملی از دیپ‌سیک، لطفاً با کلیک روی دکمه <b>«⚙️ تنظیمات»</b> در بالا، کلید API دیپ‌سیک خود را وارد نمایید.
-                    </p>
-                    <button onclick="toggleDeepSeekConfig()" style="width: auto; background: var(--accent-gradient); font-size: 0.8rem; padding: 6px 12px; margin: 4px 0 10px 0;">
-                        ⚙️ باز کردن کادر تنظیمات و وارد کردن کلید
-                    </button>
-                    <hr style="border-color: #334155; margin: 10px 0;">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;"><b>پاسخ سریع از بانک اطلاعات دارویی محلی:</b></p>
-                    <p style="font-size: 0.85rem; color: var(--text-main); line-height: 1.6;">${getOfflineDrugAdvice(text)}</p>
-                </div>
-            `;
-            logToDebug(`پرسش دارویی '${text}' به دلیل عدم وجود کلید دیپ‌سیک از دیتابیس محلی پاسخ داده شد.`);
-            return;
-        }
-
-        respDiv.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 8px; color: var(--accent-color);">
-                <span>⏳ در حال پردازش و استخراج پاسخ از هوش مصنوعی دیپ‌سیک (${model})...</span>
-            </div>
-        `;
-        if (sendBtn) sendBtn.disabled = true;
-
-        logToDebug(`ارسال سوال به دیپ‌سیک: "${text.substring(0, 35)}..."`);
+        badge.className = 'status-badge checking';
+        badge.innerHTML = '⟳ در حال بررسی ارتباط...';
 
         try {
-            const response = await fetch(endpoint, {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+            const res = await fetch('https://api.deepseek.com/models', {
+                method: 'GET',
+                headers: { 'Authorization': `Bearer ${apiKey}` },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+
+            if (res.ok) {
+                badge.className = 'status-badge online';
+                badge.innerHTML = '● دیپ‌سیک: متصل و آنلاین (Live)';
+                logDebug('اتصال با سرور دیپ‌سیک برقرار است.');
+            } else {
+                badge.className = 'status-badge offline';
+                badge.innerHTML = `● دیپ‌سیک: خطای احراز هویت (${res.status})`;
+                logDebug(`خطای اتصال دیپ‌سیک: کد ${res.status}`);
+            }
+        } catch (e) {
+            badge.className = 'status-badge offline';
+            badge.innerHTML = '● دیپ‌سیک: عدم دسترسی به اینترنت / سرور';
+            logDebug(`عدم ارتباط با دیپ‌سیک: ${e.message}`);
+        }
+    }
+
+    async function testDeepSeekConnection() {
+        const apiKey = document.getElementById('deepseekApiKey').value.trim();
+        if(!apiKey) {
+            alert('لطفاً ابتدا کلید API دیپ‌سیک را وارد کنید.');
+            return;
+        }
+        saveDeepSeekConfig();
+        await checkDeepSeekStatus();
+        alert('بررسی اتصال انجام شد. وضعیت را در بالای بخش مشاوره مشاهده فرمایید.');
+    }
+
+    // مشاوره با هوش مصنوعی (DeepSeek + دانشنامه ۶۸۴ دارویی)
+    async function askAI() {
+        const inputEl = document.getElementById('aiInput');
+        const text = inputEl ? inputEl.value.trim() : '';
+        const resDiv = document.getElementById('aiResponse');
+        const sendBtn = document.getElementById('aiSendBtn');
+        if(!text) return;
+
+        const apiKey = localStorage.getItem('ds_api_key') || (document.getElementById('deepseekApiKey') ? document.getElementById('deepseekApiKey').value.trim() : '');
+        const model = localStorage.getItem('ds_model') || 'deepseek-chat';
+
+        resDiv.innerHTML = `<span style="color:var(--accent-color);">در حال پردازش و استخراج اطلاعات از مرجع داروشناسی...</span>`;
+        if (sendBtn) sendBtn.disabled = true;
+
+        logDebug(`ارسال درخواست هوش مصنوعی: ${text.substring(0, 45)}...`);
+
+        // اگر کاربر هنوز کلید دیپ‌سیک وارد نکرده، از موتور دانشنامه ۶۸۴ دارویی استفاده شود
+        if (!apiKey) {
+            setTimeout(() => {
+                const offlineAdvice = getOfflineDrugAdvice(text);
+                resDiv.innerHTML = `
+                    <div style="background:rgba(245,158,11,0.15); border:1px solid var(--warning); padding:10px; border-radius:8px; margin-bottom:10px; font-size:0.85rem; color:var(--warning);">
+                        ℹ️ <b>پاسخ برگرفته از کتاب مرجع ۶۸۴ داروی ژنریک:</b> برای دریافت استدلال‌های تکمیلی دیپ‌سیک می‌توانید کلید API رایگان خود را در «تنظیمات دیپ‌سیک» بالا وارد کنید.
+                    </div>
+                    <div style="line-height:1.7;">${offlineAdvice}</div>
+                `;
+                if (sendBtn) sendBtn.disabled = false;
+                logDebug('پاسخ از موتور دانشنامه دارویی کتاب مرجع صادر شد.');
+            }, 600);
+            return;
+        }
+
+        try {
+            // یافتن داروی مرتبط از بانک جهت پیوست به پرامپت دیپ‌سیک
+            const matchedDrug = findDrugInText(text);
+            let contextPrompt = '';
+            if (matchedDrug) {
+                contextPrompt = `\nاطلاعات موثق دارویی از کتاب مرجع داروهای ژنریک درباره داروی «${matchedDrug.drug_name}»:\n- دسته: ${matchedDrug.therapeutic_class || ''}\n- دوز: ${matchedDrug.adult_dose_display || ''}\n- موارد مصرف: ${matchedDrug.indications || ''}\n- منع مصرف: ${matchedDrug.contraindications || ''}\n- عوارض: ${matchedDrug.side_effects || ''}\n- ملاحظات پرستاری: ${matchedDrug.nursing_considerations || ''}\nاز این اطلاعات بالینی برای تدوین پاسخ دقیق به بیمار استفاده کنید.\n`;
+            }
+
+            const systemPrompt = "شما یک دستیار هوشمند و متخصص بالینی داروشناسی هستید. وظیفه شما پاسخ دقیق، علمی و به زبان فارسی روان به پرسش‌های دارویی، تداخلات، موارد مصرف، دوز و احتیاط‌ها است. همیشه رعایت احتیاط و مشورت با پزشک معالج را یادآور شوید." + contextPrompt;
+
+            const response = await fetch('https://api.deepseek.com/chat/completions', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${key}`
+                    'Authorization': `Bearer ${apiKey}`
                 },
                 body: JSON.stringify({
                     model: model,
                     messages: [
-                        {
-                            role: "system",
-                            content: "شما یک دستیار هوشمند، متخصص و دلسوز داروشناسی و مشاوره دارویی هستید. اطلاعات موثق و علمی پیرامون کاربردها، دوز معمول، عوارض جانبی مهم، منع مصرف و تداخلات داروها را به زبان فارسی سلیس و روان ارائه دهید. نکات مهم را با تیتر یا نشانه‌گذاری تفکیک کنید. در پایان همواره یادآوری کنید که این اطلاعات صرفاً جهت آگاهی است و تغییر دوز یا مصرف دارو باید منحصراً با نظر پزشک معالج باشد."
-                        },
-                        {
-                            role: "user",
-                            content: text
-                        }
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: text }
                     ],
-                    temperature: 0.7,
-                    max_tokens: 1000
+                    stream: false
                 })
             });
 
             if (response.ok) {
                 const data = await response.json();
-                const aiAnswer = data.choices?.[0]?.message?.content || "پاسخی از هوش مصنوعی دریافت نشد.";
-                
-                respDiv.innerHTML = `
-                    <div style="border-right: 3px solid var(--accent-color); padding-right: 12px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <b style="color: var(--accent-color);">پاسخ هوش مصنوعی دیپ‌سیک:</b>
-                            <button onclick="copyToClipboard(decodeURIComponent('${encodeURIComponent(aiAnswer)}'))" style="width: auto; padding: 2px 8px; font-size: 0.75rem; background: #334155; margin: 0;">
-                                📋 کپی پاسخ
-                            </button>
-                        </div>
-                        <div style="color: var(--text-main); font-size: 0.9rem; line-height: 1.8;">${formatAIResponse(aiAnswer)}</div>
+                const aiAnswer = data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : 'پاسخی از سرور دیپ‌سیک دریافت نشد.';
+                resDiv.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:8px;">
+                        <b style="color:var(--accent-color);">پاسخ DeepSeek (${model}):</b>
+                        <small style="color:var(--success);">✓ مستند به مرجع دارویی</small>
                     </div>
+                    <div style="line-height:1.8;">${formatAIResponse(aiAnswer)}</div>
                 `;
-                logToDebug(`پاسخ دیپ‌سیک دریافت و با موفقیت نمایش داده شد.`);
+                logDebug('پاسخ دیپ‌سیک با موفقیت دریافت و نمایش داده شد.');
             } else {
-                let errText = await response.text();
-                try {
-                    const parsed = JSON.parse(errText);
-                    errText = parsed.error?.message || errText;
-                } catch(e) {}
-
-                respDiv.innerHTML = `
-                    <div style="border-right: 3px solid var(--danger); padding-right: 12px;">
-                        <b style="color: var(--danger);">خطا در پاسخ‌دهی سرور دیپ‌سیک (کد ${response.status}):</b>
-                        <p style="margin: 6px 0; color: #fca5a5; font-size: 0.85rem;">${errText}</p>
-                        <hr style="border-color: #334155; margin: 10px 0;">
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;"><b>پاسخ جایگزین محلی:</b></p>
-                        <p style="font-size: 0.85rem; color: var(--text-main); line-height: 1.6;">${getOfflineDrugAdvice(text)}</p>
-                    </div>
-                `;
-                logToDebug(`خطای سرور دیپ‌سیک: وضعیت ${response.status} - ${errText}`);
+                handleApiError(response.status, resDiv, text);
             }
-        } catch (error) {
-            respDiv.innerHTML = `
-                <div style="border-right: 3px solid var(--danger); padding-right: 12px;">
-                    <b style="color: var(--danger);">عدم امکان ارتباط با سرور دیپ‌سیک:</b>
-                    <p style="margin: 6px 0; color: #fca5a5; font-size: 0.85rem;">${error.message}</p>
-                    <hr style="border-color: #334155; margin: 10px 0;">
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;"><b>پاسخ جایگزین محلی:</b></p>
-                    <p style="font-size: 0.85rem; color: var(--text-main); line-height: 1.6;">${getOfflineDrugAdvice(text)}</p>
+        } catch (err) {
+            logDebug(`خطا در اتصال به API: ${err.message}`);
+            resDiv.innerHTML = `
+                <span style="color:var(--danger);">❌ خطای ارتباط با سرور دیپ‌سیک: ${err.message}</span>
+                <div style="margin-top:10px; padding:10px; background:#1e293b; border-radius:8px;">
+                    <b style="color:var(--accent-color);">پاسخ استخراج‌شده از بانک ۶۸۴ داروی کتاب مرجع:</b>
+                    <div style="margin-top:6px; line-height:1.7;">${getOfflineDrugAdvice(text)}</div>
                 </div>
             `;
-            logToDebug(`خطای ارتباط شبکه در askAI: ${error.message}`);
         } finally {
             if (sendBtn) sendBtn.disabled = false;
         }
+    }
+
+    function handleApiError(status, resDiv, originalQuery) {
+        let msg = `خطای سرور (${status})`;
+        if (status === 401) msg = 'کلید API دیپ‌سیک نامعتبر است.';
+        else if (status === 402) msg = 'موجودی یا سهمیه توکن حساب دیپ‌سیک شما پایان یافته است.';
+        else if (status === 429) msg = 'محدودیت تعداد درخواست در دقیقه (Rate Limit).';
+
+        resDiv.innerHTML = `
+            <div style="color:var(--danger); margin-bottom:8px;">⚠️ ${msg}</div>
+            <div style="padding:10px; background:#1e293b; border-radius:8px; border:1px solid #334155;">
+                <b style="color:var(--accent-color);">پاسخ دانشنامه ۶۸۴ داروی کتاب مرجع:</b>
+                <div style="margin-top:6px;">${getOfflineDrugAdvice(originalQuery)}</div>
+            </div>
+        `;
     }
 
     function formatAIResponse(text) {
@@ -739,23 +1086,46 @@
             .replace(/\n/g, '<br>');
     }
 
-    function copyToClipboard(text) {
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("پاسخ در کلیپ‌بورد کپی شد.");
-            });
-        } else {
-            alert("کپی در مرورگر پشتیبانی نشد.");
-        }
+    // جستجوی داروی تطبیقی در متن سوال
+    function findDrugInText(query) {
+        const q = query.toLowerCase();
+        return allMedications.find(d => 
+            (d.drug_name && q.includes(d.drug_name.toLowerCase())) ||
+            (d.generic_name_en && q.includes(d.generic_name_en.toLowerCase())) ||
+            (d.trade_names && q.includes(d.trade_names.toLowerCase()))
+        );
     }
 
-    // تشخیص صوت
+    // پاسخ هوشمند آفلاین با استفاده از تمام ۶۸۴ دارو
+    function getOfflineDrugAdvice(query) {
+        const drug = findDrugInText(query);
+        if (drug) {
+            return `
+                <div style="background:#0f172a; padding:12px; border-radius:8px; border:1px solid #334155;">
+                    <b style="color:var(--accent-color); font-size:1.05rem;">💊 داروی شناسایی‌شده: ${drug.drug_name} (${drug.generic_name_en || ''})</b>
+                    ${drug.is_high_risk ? '<span class="badge badge-danger">🚨 داروی پرخطر</span>' : ''}
+                    ${drug.pregnancy_category ? `<span class="badge badge-warning">رده بارداری: ${drug.pregnancy_category}</span>` : ''}
+                    <hr style="border-color:#334155; margin:8px 0;">
+                    ${drug.adult_dose_display ? `<p><b>⚖️ دوز مصرف:</b> ${drug.adult_dose_display}</p>` : ''}
+                    ${drug.indications ? `<p><b>🎯 موارد مصرف:</b> ${drug.indications}</p>` : ''}
+                    ${drug.contraindications ? `<p><b style="color:var(--danger);">⛔ منع مصرف:</b> ${drug.contraindications}</p>` : ''}
+                    ${drug.side_effects ? `<p><b style="color:var(--warning);">⚠️ عوارض جانبی:</b> ${drug.side_effects}</p>` : ''}
+                    ${drug.drug_interactions ? `<p><b>🔄 تداخلات:</b> ${drug.drug_interactions}</p>` : ''}
+                    ${drug.nursing_considerations ? `<p><b>👩‍⚕️ ملاحظات بالینی:</b> ${drug.nursing_considerations}</p>` : ''}
+                </div>
+            `;
+        }
+
+        return `اطلاعات دارویی: هر دارو باید دقیقاً مطابق دستور پزشک و نسخه معتبر استفاده شود. دوره درمان آنتی‌بیوتیک‌ها باید کامل گردد و داروهای مسکن و ضدالتهاب همراه غذا مصرف شوند. در صورت داشتن حساسیت یا بروز علائم حاد (تنگی نفس، کهیر، تپش قلب) فوراً به اورژانس مراجعه فرمایید.`;
+    }
+
+    // تایپ صوتی
     let recognition = null;
     let activeRecordingInputId = null;
 
     function toggleVoice(inputId) {
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-            alert('مرورگر شما از قابلیت تشخیص صوت پشتیبانی نمی‌کند.');
+            alert('مرورگر شما از تشخیص گفتار پشتیبانی نمی‌کند.');
             return;
         }
 
@@ -766,9 +1136,7 @@
             return;
         }
 
-        if (recognition) {
-            recognition.stop();
-        }
+        if (recognition) { recognition.stop(); }
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
@@ -777,8 +1145,8 @@
 
         recognition.onstart = function() {
             activeRecordingInputId = inputId;
-            btn.classList.add('active-mic');
-            logToDebug(`شروع ضبط صدا برای ${inputId}...`);
+            if (btn) btn.classList.add('active-mic');
+            logDebug(`شروع ضبط صوت برای ${inputId}...`);
         };
 
         recognition.onresult = function(event) {
@@ -787,46 +1155,55 @@
                 transcript += event.results[i][0].transcript;
             }
             document.getElementById(inputId).value = transcript;
+            if (inputId === 'drugInput') {
+                onDrugInputChanged();
+            }
         };
 
-        recognition.onerror = function(event) {
-            btn.classList.remove('active-mic');
+        recognition.onerror = function(e) {
+            if (btn) btn.classList.remove('active-mic');
             activeRecordingInputId = null;
-            logToDebug(`خطای تشخیص گفتار: ${event.error}`);
+            logDebug(`خطای گفتار: ${e.error}`);
         };
 
         recognition.onend = function() {
-            btn.classList.remove('active-mic');
+            if (btn) btn.classList.remove('active-mic');
             activeRecordingInputId = null;
+            logDebug('پایان ضبط صوت.');
+            if (inputId === 'drugInput') {
+                processDrugSearch();
+            }
         };
 
         recognition.start();
     }
 
-    // مدیریت فایل و تصویر
+    // بارگذاری فایل و عکس
     function handleFile(event, type) {
         const file = event.target.files[0];
         if(file) {
             const reader = new FileReader();
             reader.onload = function(e) {
                 const previewId = type === 'drug' ? 'drugMediaPreview' : 'aiMediaPreview';
-                document.getElementById(previewId).innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <img src="${e.target.result}" style="max-height:80px; border-radius:8px; border:1px solid #334155;">
-                        <span style="font-size:0.8rem; color:var(--success);">✓ تصویر با موفقیت ضمیمه شد</span>
-                    </div>
-                `;
-                logToDebug(`تصویر ${type} پیوست شد (${Math.round(file.size/1024)} KB)`);
+                const previewContainer = document.getElementById(previewId);
+                if (previewContainer) {
+                    previewContainer.innerHTML = `
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <img src="${e.target.result}" style="max-height:80px; border-radius:8px; border:1px solid #334155;">
+                            <span style="font-size:0.8rem; color:var(--success);">✓ تصویر با موفقیت پیوست شد</span>
+                        </div>
+                    `;
+                }
+                logDebug(`تصویر ${type} با موفقیت بارگذاری شد.`);
             }
             reader.readAsDataURL(file);
         }
     }
 
-    // آلارم دارو
+    // آلارم داروها
     function saveDrugAlarm() {
         const drug = document.getElementById('alarmDrugName').value.trim();
-        const hour = document.getElementById('alarmHour').value;
-        const minute = document.getElementById('alarmMinute').value;
+        const timeObj = getSelectedTime();
 
         if(!drug) {
             alert('لطفاً نام دارو را وارد کنید.');
@@ -834,12 +1211,12 @@
         }
 
         let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
-        alarms.push({ id: Date.now(), drug, time: `${hour}:${minute}` });
+        alarms.push({ id: Date.now(), drug, time: `${timeObj.hour}:${timeObj.minute}` });
         localStorage.setItem('drugAlarms', JSON.stringify(alarms));
         loadAlarms();
         document.getElementById('alarmDrugName').value = '';
-        alert(`آلارم داروی ${drug} برای ساعت ${hour}:${minute} ثبت شد.`);
-        logToDebug(`آلارم جدید ثبت شد: ${drug} (${hour}:${minute})`);
+        alert(`آلارم داروی «${drug}» برای ساعت ${timeObj.hour}:${timeObj.minute} ثبت گردید.`);
+        logDebug(`آلارم جدید: ${drug} در ساعت ${timeObj.hour}:${timeObj.minute}`);
     }
 
     function deleteAlarm(id) {
@@ -847,12 +1224,14 @@
         alarms = alarms.filter(a => a.id !== id);
         localStorage.setItem('drugAlarms', JSON.stringify(alarms));
         loadAlarms();
-        logToDebug(`آلارم شناسه ${id} حذف شد.`);
+        logDebug(`آلارم ${id} حذف شد.`);
     }
 
     function loadAlarms() {
         let alarms = JSON.parse(localStorage.getItem('drugAlarms') || '[]');
-        document.getElementById('alarmList').innerHTML = alarms.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">هیچ آلارمی ثبت نشده است.</p>' : alarms.map(a => `
+        const container = document.getElementById('alarmList');
+        if (!container) return;
+        container.innerHTML = alarms.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">هیچ آلارمی ثبت نشده است.</p>' : alarms.map(a => `
             <div class="list-item">
                 <span>⏰ ${a.drug} - ساعت ${a.time}</span>
                 <button class="delete-btn" onclick="deleteAlarm(${a.id})">حذف</button>
@@ -867,7 +1246,7 @@
         localStorage.setItem('drugHistory', JSON.stringify(history));
         loadHistory();
         alert(`داروی «${drugName}» به تاریخچه مصرف اضافه شد.`);
-        logToDebug(`دارو به تاریخچه منتقل شد: ${drugName}`);
+        logDebug(`دارو به تاریخچه اضافه شد: ${drugName}`);
     }
 
     function deleteHistory(id) {
@@ -878,15 +1257,16 @@
     }
 
     function addAllergy() {
-        const allergy = document.getElementById('allergyInput').value.trim();
+        const allergyInput = document.getElementById('allergyInput');
+        const allergy = allergyInput.value.trim();
         if(!allergy) return;
         let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
         allergies.push({ id: Date.now(), name: allergy });
         localStorage.setItem('drugAllergies', JSON.stringify(allergies));
-        document.getElementById('allergyInput').value = '';
+        allergyInput.value = '';
         loadHistory();
         alert(`حساسیت به «${allergy}» ذخیره شد.`);
-        logToDebug(`حساسیت دارویی ثبت شد: ${allergy}`);
+        logDebug(`حساسیت جدید ثبت شد: ${allergy}`);
     }
 
     function deleteAllergy(id) {
@@ -897,30 +1277,40 @@
     }
 
     function loadHistory() {
+        const histContainer = document.getElementById('historyList');
+        const allergyContainer = document.getElementById('allergyList');
+
         let history = JSON.parse(localStorage.getItem('drugHistory') || '[]');
-        document.getElementById('historyList').innerHTML = history.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">تاریخچه مصرف خالی است.</p>' : history.map(item => `
-            <div class="list-item">
-                <span>💊 ${item.drugName} <small style="color:var(--text-muted);">(${item.time})</small></span>
-                <button class="delete-btn" onclick="deleteHistory(${item.id})">حذف</button>
-            </div>
-        `).join('');
+        if (histContainer) {
+            histContainer.innerHTML = history.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">تاریخچه مصرف خالی است.</p>' : history.map(item => `
+                <div class="list-item">
+                    <span>💊 ${item.drugName} <small style="color:var(--text-muted); font-size:0.75rem;">(${item.time})</small></span>
+                    <button class="delete-btn" onclick="deleteHistory(${item.id})">حذف</button>
+                </div>
+            `).join('');
+        }
 
         let allergies = JSON.parse(localStorage.getItem('drugAllergies') || '[]');
-        document.getElementById('allergyList').innerHTML = allergies.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">حساسیتی ثبت نشده است.</p>' : allergies.map(al => `
-            <div class="list-item">
-                <span>⚠️ ${al.name}</span>
-                <button class="delete-btn" onclick="deleteAllergy(${al.id})">حذف</button>
-            </div>
-        `).join('');
+        if (allergyContainer) {
+            allergyContainer.innerHTML = allergies.length === 0 ? '<p style="color:var(--text-muted); text-align:center;">حساسیتی ثبت نشده است.</p>' : allergies.map(al => `
+                <div class="list-item">
+                    <span>⚠️ ${al.name}</span>
+                    <button class="delete-btn" onclick="deleteAllergy(${al.id})">حذف</button>
+                </div>
+            `).join('');
+        }
     }
 
-    window.onload = function() {
-        loadHistory();
-        loadAlarms();
+    // بارگذاری اولیه صفحه
+    window.addEventListener('DOMContentLoaded', () => {
+        initMedicationsDatabase();
+        initClockWheels();
         loadDeepSeekConfig();
-        showTab('drug');
-        logToDebug("اپلیکیشن با موفقیت راه‌اندازی شد.");
-    };
+        loadAlarms();
+        loadHistory();
+        checkDeepSeekStatus();
+        logDebug('برنامه داروشناسی هوشمند با موفقیت راه‌اندازی گردید.');
+    });
 </script>
 
 </body>

@@ -146,6 +146,8 @@ fun DaroshenasiApp() {
             databaseEnabled = true
             allowFileAccess = true
             allowContentAccess = true
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true
             loadWithOverviewMode = true
             useWideViewPort = true
             builtInZoomControls = false
